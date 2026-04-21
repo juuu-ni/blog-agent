@@ -1,0 +1,19 @@
+{
+  "name": "blog-agent",
+  "version": "1.0.0",
+  "description": "내 말투를 학습해서 블로그 글을 써주는 웹사이트",
+  "main": "server/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
