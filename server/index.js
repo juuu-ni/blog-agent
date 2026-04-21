@@ -2,20 +2,25 @@ import 'dotenv/config';
 import express from 'express';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import analyzeRouter from './routes/analyze.js';
+import generateRouter from './routes/generate.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
+app.use(express.json({ limit: '20mb' }));
 app.use(express.static(join(__dirname, '../public')));
 
-app.post('/api/analyze', (req, res) => {
-  res.json({ message: 'analyze endpoint — coming soon' });
+app.use('/api/analyze', analyzeRouter);
+app.use('/api/generate', generateRouter);
+
+app.get('/generate', (req, res) => {
+  res.sendFile(join(__dirname, '../public/generate.html'));
 });
 
-app.post('/api/generate', (req, res) => {
-  res.json({ message: 'generate endpoint — coming soon' });
+app.get('/result', (req, res) => {
+  res.sendFile(join(__dirname, '../public/result.html'));
 });
 
 app.listen(PORT, () => {
