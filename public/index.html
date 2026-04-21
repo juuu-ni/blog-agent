@@ -47,6 +47,16 @@
 
   <main>
 
+    <!-- 저장된 프로파일 -->
+    <section class="card" id="saved-profiles-section" style="display:none;">
+      <div class="card-header">
+        <span class="saved-profiles-icon">📁</span>
+        <h2>저장된 프로파일</h2>
+      </div>
+      <p class="card-desc">이전에 저장한 말투 프로파일을 불러올 수 있어요.</p>
+      <div id="saved-profiles-list"></div>
+    </section>
+
     <!-- Step 1: 샘플 등록 -->
     <section class="card" id="step-samples">
       <div class="card-header">
@@ -90,6 +100,10 @@
       <div class="profile-result" id="profile-result" style="display:none;">
         <h3 class="profile-title">말투 프로파일</h3>
         <div class="profile-grid" id="profile-grid"></div>
+        <div class="profile-save-row">
+          <input type="text" class="text-input" id="profile-name-input" placeholder="프로파일 이름 (예: 내 말투, 친구 말투)" maxlength="20" />
+          <button class="btn btn-outline" onclick="saveProfile()">저장</button>
+        </div>
       </div>
     </section>
 

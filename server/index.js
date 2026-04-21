@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import analyzeRouter from './routes/analyze.js';
 import generateRouter from './routes/generate.js';
+import hashtagsRouter from './routes/hashtags.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -14,6 +15,7 @@ app.use(express.static(join(__dirname, '../public')));
 
 app.use('/api/analyze', analyzeRouter);
 app.use('/api/generate', generateRouter);
+app.use('/api/hashtags', hashtagsRouter);
 
 app.get('/generate', (req, res) => {
   res.sendFile(join(__dirname, '../public/generate.html'));

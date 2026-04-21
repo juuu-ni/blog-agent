@@ -14,6 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     renderSingle(data.content);
   }
+
+  generateHashtags(data);
 });
 
 /* ===== 사진+글 인터리빙 렌더링 ===== */
@@ -87,6 +89,54 @@ async function copyAll() {
     });
   } catch {
     alert('복사에 실패했습니다. 직접 텍스트를 선택해 복사해 주세요.');
+  }
+}
+
+/* ===== 해시태그 생성 ===== */
+async function generateHashtags(data) {
+  const content = data.type === 'interleaved'
+    ? (data.segments || []).join('\n\n')
+    : (data.content || '');
+  const topic = data.topic || '';
+  if (!content && !topic) return;
+
+  document.getElementById('hashtag-loading').style.display = 'block';
+
+  try {
+    const res = await fetch('/api/hashtags', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: content.slice(0, 2000), topic }),
+    });
+    if (!res.ok) throw new Error('해시태그 생성 실패');
+    const { hashtags } = await res.json();
+    renderHashtags(hashtags);
+  } catch {
+    // 해시태그 실패는 조용히 처리
+  } finally {
+    document.getElementById('hashtag-loading').style.display = 'none';
+  }
+}
+
+function renderHashtags(hashtags) {
+  if (!hashtags || hashtags.length === 0) return;
+  const list = document.getElementById('hashtag-list');
+  list.innerHTML = hashtags.map(tag =>
+    `<span class="hashtag">${escapeHtml(tag)}</span>`
+  ).join('');
+  document.getElementById('hashtag-section').style.display = 'block';
+}
+
+async function copyHashtags() {
+  const tags = Array.from(document.querySelectorAll('.hashtag')).map(el => el.textContent);
+  const btn = document.getElementById('btn-copy-hashtags');
+  try {
+    await navigator.clipboard.writeText(tags.join(' '));
+    btn.textContent = '복사됨 ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
+  } catch {
+    alert('복사에 실패했습니다.');
   }
 }
 

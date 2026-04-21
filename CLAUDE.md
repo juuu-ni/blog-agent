@@ -96,3 +96,19 @@ npm start         # 프로덕션 실행
 ANTHROPIC_API_KEY=your-api-key-here
 PORT=3000
 ```
+
+## 진행 상황
+
+### 완료
+
+- 프로젝트 초기 세팅
+- Express 서버 구축
+- /api/analyze - 스타일 프로파일 추출
+- /api/generate - 블로그 글 생성
+- 네이버 스타일 UI 디자인
+- 페이지 분리 (index → generate → result)
+- 사진 업로드 및 사진+글 인터리빙 기능
+
+### 다음 단계
+
+- 사진-글 인터리빙 결과 /result 페이지 표시 (진행 중)

@@ -710,6 +710,110 @@ main {
   border-color: var(--color-primary);
 }
 
+/* ===== 저장된 프로파일 ===== */
+.saved-profiles-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.saved-profile-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  gap: 12px;
+  background: var(--color-bg);
+}
+
+.saved-profile-item:last-child {
+  margin-bottom: 0;
+}
+
+.saved-profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.saved-profile-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.saved-profile-date {
+  font-size: 11.5px;
+  color: var(--color-muted);
+}
+
+.saved-profile-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12.5px;
+}
+
+.profile-save-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.profile-save-row .text-input {
+  flex: 1;
+  font-size: 13.5px;
+  padding: 8px 12px;
+}
+
+/* ===== 해시태그 ===== */
+.hashtag-section {
+  margin-bottom: 4px;
+}
+
+.hashtag-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.hashtag-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.hashtag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hashtag {
+  display: inline-block;
+  padding: 5px 12px;
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: default;
+}
+
 /* ===== 푸터 ===== */
 .site-footer {
   text-align: center;

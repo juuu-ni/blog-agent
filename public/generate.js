@@ -89,6 +89,22 @@ async function handleImageUpload(files) {
   renderPreviews();
 }
 
+function compressDataUrl(dataUrl, maxWidth = 1024, quality = 0.7) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const ratio = Math.min(1, maxWidth / img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * ratio);
+      canvas.height = Math.round(img.height * ratio);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
 function readFile(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -171,11 +187,17 @@ async function generatePost() {
 
     const result = await res.json();
 
-    // sessionStorage에 결과 + 이미지 data URL 저장 후 /result 이동
+    const compressedImages = await Promise.all(
+      uploadedImages.map(async ({ dataUrl, name }) => ({
+        dataUrl: await compressDataUrl(dataUrl),
+        name,
+      }))
+    );
+
     sessionStorage.setItem('blogResult', JSON.stringify({
       ...result,
       topic,
-      images: uploadedImages.map(({ dataUrl, name }) => ({ dataUrl, name })),
+      images: compressedImages,
     }));
 
     window.location.href = '/result';

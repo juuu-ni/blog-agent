@@ -1,5 +1,11 @@
 /* ===== 상태 ===== */
 let sampleCount = 1;
+let currentProfile = null;
+const PROFILES_KEY = 'savedProfiles';
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadSavedProfiles();
+});
 
 /* ===== 샘플 추가 / 삭제 ===== */
 function addSample() {
@@ -85,6 +91,7 @@ async function analyzeStyle() {
     }
 
     const profile = await res.json();
+    currentProfile = profile;
     localStorage.setItem('styleProfile', JSON.stringify(profile));
 
     renderProfile(profile);
@@ -142,4 +149,112 @@ function renderProfile(profile) {
 /* ===== 글 생성 페이지로 이동 ===== */
 function goToGenerate() {
   window.location.href = '/generate';
+}
+
+/* ===== 프로파일 저장/불러오기/삭제 ===== */
+function getSavedProfiles() {
+  try {
+    return JSON.parse(localStorage.getItem(PROFILES_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function saveProfile() {
+  if (!currentProfile) {
+    alert('저장할 프로파일이 없습니다. 먼저 분석을 완료해 주세요.');
+    return;
+  }
+  const nameInput = document.getElementById('profile-name-input');
+  const name = nameInput.value.trim();
+  if (!name) {
+    alert('프로파일 이름을 입력해 주세요.');
+    nameInput.focus();
+    return;
+  }
+
+  const profiles = getSavedProfiles();
+  const existing = profiles.findIndex(p => p.name === name);
+  if (existing !== -1) {
+    const ok = confirm(`"${name}" 프로파일이 이미 있습니다. 덮어쓸까요?`);
+    if (!ok) return;
+    profiles[existing] = { name, profile: currentProfile, savedAt: Date.now() };
+  } else {
+    profiles.push({ name, profile: currentProfile, savedAt: Date.now() });
+  }
+
+  localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+  nameInput.value = '';
+  loadSavedProfiles();
+
+  const btn = document.querySelector('.profile-save-row .btn-outline');
+  const orig = btn.textContent;
+  btn.textContent = '저장됨 ✓';
+  btn.disabled = true;
+  setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 1500);
+}
+
+function loadSavedProfiles() {
+  const profiles = getSavedProfiles();
+  const section = document.getElementById('saved-profiles-section');
+  const list = document.getElementById('saved-profiles-list');
+
+  if (profiles.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  list.innerHTML = '';
+
+  profiles.forEach((item, i) => {
+    const el = document.createElement('div');
+    el.className = 'saved-profile-item';
+    el.innerHTML = `
+      <div class="saved-profile-info">
+        <span class="saved-profile-name">${escapeHtml(item.name)}</span>
+        <span class="saved-profile-date">${formatDate(item.savedAt)}</span>
+      </div>
+      <div class="saved-profile-actions">
+        <button class="btn btn-outline btn-sm" onclick="applyProfile(${i})">불러오기</button>
+        <button class="btn-remove" onclick="deleteProfile(${i})" title="삭제">✕</button>
+      </div>
+    `;
+    list.appendChild(el);
+  });
+}
+
+function applyProfile(index) {
+  const profiles = getSavedProfiles();
+  const item = profiles[index];
+  if (!item) return;
+
+  currentProfile = item.profile;
+  localStorage.setItem('styleProfile', JSON.stringify(item.profile));
+  renderProfile(item.profile);
+  setActiveStep(3);
+
+  const goBtn = document.getElementById('go-generate');
+  goBtn.style.display = 'flex';
+
+  document.getElementById('step-analyze').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function deleteProfile(index) {
+  const profiles = getSavedProfiles();
+  const name = profiles[index]?.name;
+  if (!confirm(`"${name}" 프로파일을 삭제할까요?`)) return;
+  profiles.splice(index, 1);
+  localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+  loadSavedProfiles();
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function formatDate(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 }
