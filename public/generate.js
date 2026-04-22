@@ -151,6 +151,7 @@ function renderPreviews() {
 /* ===== 글 생성 ===== */
 async function generatePost() {
   const topic = document.getElementById('topic-input').value.trim();
+  const mustInclude = document.getElementById('must-include-input').value.trim();
 
   if (!topic) {
     alert('주제를 입력해 주세요.');
@@ -175,6 +176,7 @@ async function generatePost() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         topic,
+        mustInclude: mustInclude || null,
         profile: styleProfile,
         images: uploadedImages.map(({ data, mediaType }) => ({ data, mediaType })),
       }),

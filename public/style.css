@@ -523,6 +523,53 @@ main {
   color: var(--color-muted);
 }
 
+/* ===== 꼭 들어갈 내용 ===== */
+.must-include-section {
+  margin-top: 14px;
+}
+
+.must-include-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #444;
+  margin-bottom: 6px;
+}
+
+.optional-badge {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #888;
+  background: #f0f0f0;
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+.must-include-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 0.9rem;
+  color: #333;
+  resize: vertical;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  line-height: 1.6;
+}
+
+.must-include-textarea:focus {
+  outline: none;
+  border-color: #03C75A;
+}
+
+.must-include-textarea::placeholder {
+  color: #aaa;
+}
+
 /* ===== 사진 업로드 ===== */
 .photo-upload-section {
   margin-bottom: 18px;

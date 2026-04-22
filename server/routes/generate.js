@@ -6,7 +6,7 @@ const router = Router();
 const SUPPORTED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
 router.post('/', async (req, res) => {
-  const { topic, profile, images } = req.body;
+  const { topic, mustInclude, profile, images } = req.body;
 
   if (!topic || typeof topic !== 'string' || !topic.trim()) {
     return res.status(400).json({ error: '주제(topic)가 필요합니다.' });
@@ -32,13 +32,18 @@ router.post('/', async (req, res) => {
   try {
     if (hasImages) {
       // 사진별 글 섹션을 JSON 배열로 생성
-      const textPrompt = `사진이 ${validImages.length}장 있습니다. 각 사진에 해당하는 블로그 글 섹션을 순서대로 작성해 주세요.
+      const mustIncludeSection = mustInclude
+    ? `\n[꼭 들어갈 내용]\n${mustInclude}\n- 위 내용을 글 전체에 자연스럽게 반드시 포함하세요`
+    : '';
+
+  const textPrompt = `사진이 ${validImages.length}장 있습니다. 각 사진에 해당하는 블로그 글 섹션을 순서대로 작성해 주세요.
 
 [말투 프로파일]
 ${profileText}
 
 [주제]
 ${topic.trim()}
+${mustIncludeSection}
 
 규칙:
 - 각 섹션은 해당 사진의 장소, 음식, 분위기, 특징적 요소를 자연스럽게 담아야 합니다
@@ -91,7 +96,7 @@ ${topic.trim()}
       messages: [
         {
           role: 'user',
-          content: `[말투 프로파일]\n${profileText}\n\n[주제]\n${topic.trim()}\n\n위 말투로 이 주제에 대한 블로그 글을 써줘.`,
+          content: `[말투 프로파일]\n${profileText}\n\n[주제]\n${topic.trim()}${mustInclude ? `\n\n[꼭 들어갈 내용]\n${mustInclude}\n위 내용을 글에 자연스럽게 반드시 포함해줘.` : ''}\n\n위 말투로 이 주제에 대한 블로그 글을 써줘.`,
         },
       ],
     });
