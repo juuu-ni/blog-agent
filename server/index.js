@@ -5,6 +5,8 @@ import { dirname, join } from 'path';
 import analyzeRouter from './routes/analyze.js';
 import generateRouter from './routes/generate.js';
 import hashtagsRouter from './routes/hashtags.js';
+import searchPlaceRouter from './routes/search-place.js';
+import postsRouter from './routes/posts.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -16,6 +18,8 @@ app.use(express.static(join(__dirname, '../public')));
 app.use('/api/analyze', analyzeRouter);
 app.use('/api/generate', generateRouter);
 app.use('/api/hashtags', hashtagsRouter);
+app.use('/api/search-place', searchPlaceRouter);
+app.use('/api/posts', postsRouter);
 
 app.get('/generate', (req, res) => {
   res.sendFile(join(__dirname, '../public/generate.html'));
@@ -23,6 +27,10 @@ app.get('/generate', (req, res) => {
 
 app.get('/result', (req, res) => {
   res.sendFile(join(__dirname, '../public/result.html'));
+});
+
+app.get('/history', (req, res) => {
+  res.sendFile(join(__dirname, '../public/history.html'));
 });
 
 app.listen(PORT, () => {

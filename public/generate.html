@@ -23,7 +23,10 @@
           <span class="logo-text">블로그 에이전트</span>
         </a>
       </div>
-      <a href="/" class="btn-back">← 분석으로 돌아가기</a>
+      <div class="header-nav">
+        <a href="/history" class="btn-back">저장된 글</a>
+        <a href="/" class="btn-back">← 분석으로 돌아가기</a>
+      </div>
     </div>
   </header>
 
@@ -66,34 +69,157 @@
       </div>
       <p class="card-desc">어떤 주제로 글을 쓸까요? 학습된 말투로 블로그 글을 생성합니다.</p>
 
-      <!-- 사진 업로드 -->
-      <div class="photo-upload-section">
-        <label class="photo-drop-zone" for="photo-input" id="photo-drop-zone">
-          <span class="photo-drop-icon">📷</span>
-          <span class="photo-drop-text">사진 추가 <span class="photo-drop-sub">(선택 · 여러 장 가능)</span></span>
+      <!-- 가게 정보 검색 -->
+      <div class="place-search-section">
+        <label class="place-search-label">가게 정보 <span class="optional-badge">선택</span></label>
+        <div class="place-search-row">
+          <input type="text" id="place-input" class="text-input" placeholder="예: 스타벅스 강남점" />
+          <button class="btn btn-outline" id="btn-search-place" onclick="searchPlace()">검색</button>
+        </div>
+        <div id="place-search-results" class="place-search-results" style="display:none;"></div>
+        <div id="place-selected" class="place-selected-info" style="display:none;"></div>
+      </div>
+
+      <!-- 템플릿 토글 -->
+      <div class="template-toggle-row">
+        <div class="template-toggle-left">
+          <span class="template-toggle-label">맛집 리뷰 템플릿</span>
+          <span class="template-toggle-hint">구조화된 맛집 리뷰를 자동 생성합니다</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="template-toggle" onchange="toggleTemplateMode()" />
+          <span class="toggle-slider"></span>
         </label>
-        <input type="file" id="photo-input" accept="image/jpeg,image/png,image/gif,image/webp" multiple hidden />
-        <div class="photo-preview-grid" id="photo-preview-grid"></div>
       </div>
 
-      <div class="input-row">
-        <input
-          type="text"
-          id="topic-input"
-          class="text-input"
-          placeholder="예: 오늘 카페 다녀온 이야기"
-        />
-        <button class="btn btn-primary" id="btn-generate" onclick="generatePost()">글 생성</button>
+      <!-- 일반 모드 -->
+      <div id="mode-normal">
+        <div class="photo-upload-section">
+          <label class="photo-drop-zone" for="photo-input" id="photo-drop-zone">
+            <span class="photo-drop-icon">📷</span>
+            <span class="photo-drop-text">사진 추가 <span class="photo-drop-sub">(선택 · 여러 장 가능)</span></span>
+          </label>
+          <input type="file" id="photo-input" accept="image/jpeg,image/png,image/gif,image/webp" multiple hidden />
+          <div class="photo-preview-grid" id="photo-preview-grid"></div>
+        </div>
+
+        <div class="input-row">
+          <input type="text" id="topic-input" class="text-input" placeholder="예: 오늘 카페 다녀온 이야기" />
+          <button class="btn btn-primary" id="btn-generate" onclick="generatePost()">글 생성</button>
+        </div>
+
+        <div class="must-include-section">
+          <label class="must-include-label" for="must-include-input">꼭 들어갈 내용 <span class="optional-badge">선택</span></label>
+          <textarea id="must-include-input" class="must-include-textarea" placeholder="예: 주차 가능, 웨이팅 30분, 가격 1인 15000원" rows="3"></textarea>
+        </div>
       </div>
 
-      <div class="must-include-section">
-        <label class="must-include-label" for="must-include-input">꼭 들어갈 내용 <span class="optional-badge">선택</span></label>
-        <textarea
-          id="must-include-input"
-          class="must-include-textarea"
-          placeholder="예: 주차 가능, 웨이팅 30분, 가격 1인 15000원"
-          rows="3"
-        ></textarea>
+      <!-- 템플릿 모드 -->
+      <div id="mode-template" style="display:none;">
+
+        <!-- 헤더 -->
+        <div class="tpl-section">
+          <div class="tpl-section-title">헤더</div>
+          <div class="tpl-fields">
+            <div class="tpl-field">
+              <label class="tpl-label">블로그 제목</label>
+              <input type="text" id="tpl-blog-title" class="text-input" placeholder="예: [성수 데이트 맛집] 이태리국시 : 뜨끈한 돌솥 파스타" />
+            </div>
+            <div class="tpl-field">
+              <label class="tpl-label">가게 이름 <span class="tpl-required">*</span></label>
+              <input type="text" id="tpl-name" class="text-input" placeholder="가게명" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 기본 정보 -->
+        <div class="tpl-section">
+          <div class="tpl-section-title">기본 정보</div>
+          <div class="tpl-fields tpl-grid-2">
+            <div class="tpl-field">
+              <label class="tpl-label">위치</label>
+              <input type="text" id="tpl-location" class="text-input" placeholder="서울 강남구..." />
+            </div>
+            <div class="tpl-field">
+              <label class="tpl-label">인스타그램</label>
+              <input type="text" id="tpl-instagram" class="text-input" placeholder="@cafe_name" />
+            </div>
+            <div class="tpl-field">
+              <label class="tpl-label">전화번호</label>
+              <input type="text" id="tpl-phone" class="text-input" placeholder="02-1234-5678" />
+            </div>
+            <div class="tpl-field">
+              <label class="tpl-label">영업시간</label>
+              <input type="text" id="tpl-hours" class="text-input" placeholder="11:00 ~ 22:00" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 섹션 메모 -->
+        <div class="tpl-section">
+          <div class="tpl-section-title">섹션 메모 <span class="optional-badge">AI가 참고해서 작성</span></div>
+          <div class="tpl-fields">
+            <div class="tpl-field">
+              <label class="tpl-label">메뉴 &amp; 가격</label>
+              <textarea id="tpl-menu-prices" class="must-include-textarea" rows="2" placeholder="아메리카노 5,500원, 카페라떼 6,000원"></textarea>
+            </div>
+            <div class="tpl-field">
+              <label class="tpl-label">위치 정보</label>
+              <input type="text" id="tpl-location-info" class="text-input" placeholder="2호선 강남역 3번 출구 도보 5분" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 꼭 들어갈 내용 -->
+        <div class="tpl-section">
+          <div class="tpl-section-title">꼭 들어갈 내용 <span class="optional-badge">선택</span></div>
+          <textarea id="tpl-must-include" class="must-include-textarea" rows="2" placeholder="예: 주차 가능, 포장 안됨, 현금만 가능, 2인 이상 방문 추천"></textarea>
+        </div>
+
+        <!-- 섹션별 사진 -->
+        <div class="tpl-section">
+          <div class="tpl-section-title">섹션별 사진</div>
+          <div class="tpl-photo-groups">
+            <div class="tpl-photo-group">
+              <div class="tpl-photo-label">🏠 외부 모습</div>
+              <label class="photo-drop-zone photo-drop-sm" for="photo-exterior" id="drop-exterior">
+                <span class="photo-drop-icon">📷</span>
+                <span class="photo-drop-text">외부 사진 <span class="photo-drop-sub">(선택)</span></span>
+              </label>
+              <input type="file" id="photo-exterior" accept="image/jpeg,image/png,image/gif,image/webp" multiple hidden />
+              <div class="photo-preview-grid" id="preview-exterior"></div>
+            </div>
+            <div class="tpl-photo-group">
+              <div class="tpl-photo-label">🏪 내부 모습</div>
+              <label class="photo-drop-zone photo-drop-sm" for="photo-interior" id="drop-interior">
+                <span class="photo-drop-icon">📷</span>
+                <span class="photo-drop-text">내부 사진 <span class="photo-drop-sub">(선택)</span></span>
+              </label>
+              <input type="file" id="photo-interior" accept="image/jpeg,image/png,image/gif,image/webp" multiple hidden />
+              <div class="photo-preview-grid" id="preview-interior"></div>
+            </div>
+            <div class="tpl-photo-group">
+              <div class="tpl-photo-label">🍽 디테일 컷</div>
+              <label class="photo-drop-zone photo-drop-sm" for="photo-detail" id="drop-detail">
+                <span class="photo-drop-icon">📷</span>
+                <span class="photo-drop-text">디테일 컷 <span class="photo-drop-sub">(선택)</span></span>
+              </label>
+              <input type="file" id="photo-detail" accept="image/jpeg,image/png,image/gif,image/webp" multiple hidden />
+              <div class="photo-preview-grid" id="preview-detail"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 메뉴 별점 -->
+        <div class="tpl-section">
+          <div class="tpl-section-header">
+            <div class="tpl-section-title" style="margin-bottom:0;">메뉴 별점</div>
+            <button class="btn btn-outline btn-sm" onclick="addMenuRating()">+ 메뉴 추가</button>
+          </div>
+          <div id="menu-ratings-list" class="menu-ratings-list"></div>
+        </div>
+
+        <button class="btn btn-primary btn-generate-full" id="btn-generate-tpl" onclick="generatePost()">글 생성</button>
       </div>
 
       <div class="loading" id="loading-generate" style="display:none;">

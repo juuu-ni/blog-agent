@@ -9,7 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const data = JSON.parse(raw);
   document.getElementById('result-topic').textContent = data.topic || '생성된 블로그 글';
 
-  if (data.type === 'interleaved') {
+  if (data.type === 'template') {
+    renderTemplate(data);
+  } else if (data.type === 'interleaved') {
     renderInterleaved(data.segments, data.images || []);
   } else {
     renderSingle(data.content);
@@ -17,6 +19,121 @@ document.addEventListener('DOMContentLoaded', () => {
 
   generateHashtags(data);
 });
+
+/* ===== 템플릿 렌더링 ===== */
+function renderTemplate(data) {
+  const td = data.templateData;
+  const si = data.sectionImages || {};
+  const body = document.getElementById('result-body');
+
+  document.getElementById('result-topic').textContent = td.blogTitle || td.name || '맛집 리뷰';
+
+  let html = '';
+
+  // 헤더
+  html += `
+    <div class="tpl-result-header">
+      ${td.tagLine ? `<div class="tpl-result-tag">${escapeHtml(td.tagLine)}</div>` : ''}
+      <div class="tpl-result-name">${escapeHtml(td.name)}</div>
+      ${td.description ? `<div class="tpl-result-desc">${escapeHtml(td.description)}</div>` : ''}
+    </div>
+  `;
+
+  // 기본 정보
+  const infoRows = [
+    td.location ? { icon: '📍', text: td.location } : null,
+    td.instagram ? { icon: '📷', text: td.instagram } : null,
+    td.phone ? { icon: '📞', text: td.phone } : null,
+    td.hours ? { icon: '🕐', text: td.hours } : null,
+  ].filter(Boolean);
+
+  if (infoRows.length > 0) {
+    html += `
+      <div class="tpl-result-info card">
+        ${infoRows.map(r => `
+          <div class="tpl-info-row">
+            <span class="tpl-info-icon">${r.icon}</span>
+            <span class="tpl-info-text">${escapeHtml(r.text)}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // 텍스트 섹션
+  const textSections = [
+    { icon: '🍽', title: '메뉴 & 가격', content: td.menuPricesContent },
+    { icon: '📍', title: '위치정보', content: td.locationInfoContent },
+    { icon: '⏳', title: '웨이팅', content: td.waitingContent },
+  ];
+  textSections.forEach(({ icon, title, content }) => {
+    if (!content) return;
+    html += `
+      <div class="tpl-result-section card">
+        <div class="tpl-result-section-title">${icon} ${title}</div>
+        <div class="tpl-result-content">${escapeHtml(content)}</div>
+      </div>
+    `;
+  });
+
+  // 사진 섹션 (인터리빙: 사진 1장 → 설명 → 사진 1장 → 설명 반복)
+  const photoSections = [
+    { key: 'exterior', icon: '🏠', title: '외부 모습' },
+    { key: 'interior', icon: '🏪', title: '내부 모습' },
+    { key: 'detail', icon: '🍽', title: '디테일 컷' },
+  ];
+  photoSections.forEach(({ key, icon, title }) => {
+    const photos = si[key] || [];
+    if (photos.length === 0) return;
+    const blocks = photos.map(p => `
+      <div class="tpl-interleave-block">
+        <img src="${p.dataUrl}" alt="${escapeHtml(p.name || title)}" class="tpl-interleave-photo" />
+        ${p.description ? `<div class="tpl-result-content">${escapeHtml(p.description)}</div>` : ''}
+      </div>
+    `).join('');
+    html += `
+      <div class="tpl-result-section card">
+        <div class="tpl-result-section-title">${icon} ${title}</div>
+        ${blocks}
+      </div>
+    `;
+  });
+
+  // 총평
+  if (td.reviewContent) {
+    html += `
+      <div class="tpl-result-section card">
+        <div class="tpl-result-section-title">✨ 총평</div>
+        <div class="tpl-result-content">${escapeHtml(td.reviewContent)}</div>
+      </div>
+    `;
+  }
+
+  // 메뉴 별점
+  if (td.menuRatings?.length > 0) {
+    const cards = td.menuRatings.map(m => {
+      const filled = '★'.repeat(Math.max(0, Math.min(5, m.rating)));
+      const empty = '☆'.repeat(5 - Math.max(0, Math.min(5, m.rating)));
+      return `
+        <div class="menu-rating-card">
+          <div class="menu-rating-card-name">${escapeHtml(m.name)}</div>
+          <div class="menu-rating-stars">${filled}${empty}</div>
+          <div class="menu-rating-score">${m.rating} / 5</div>
+          ${m.description ? `<div class="menu-rating-desc">${escapeHtml(m.description)}</div>` : ''}
+        </div>
+      `;
+    }).join('');
+
+    html += `
+      <div class="tpl-result-section card">
+        <div class="tpl-result-section-title">⭐ 메뉴별 별점</div>
+        <div class="menu-rating-cards">${cards}</div>
+      </div>
+    `;
+  }
+
+  body.innerHTML = html;
+}
 
 /* ===== 사진+글 인터리빙 렌더링 ===== */
 function renderInterleaved(segments, images) {
@@ -44,7 +161,7 @@ function renderInterleaved(segments, images) {
   });
 }
 
-/* ===== 단일 글 렌더링 (사진 없음) ===== */
+/* ===== 단일 글 렌더링 ===== */
 function renderSingle(content) {
   const body = document.getElementById('result-body');
   body.innerHTML = `
@@ -55,7 +172,7 @@ function renderSingle(content) {
 }
 
 function escapeHtml(str) {
-  return str
+  return (str || '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -67,7 +184,31 @@ async function copyAll() {
   const data = JSON.parse(sessionStorage.getItem('blogResult'));
   let text = '';
 
-  if (data.type === 'interleaved') {
+  if (data.type === 'template') {
+    const td = data.templateData;
+    const parts = [];
+    if (td.tagLine) parts.push(`[${td.tagLine}]`);
+    if (td.name) parts.push(td.description ? `${td.name} : ${td.description}` : td.name);
+    const infoLines = [
+      td.location ? `📍 ${td.location}` : null,
+      td.instagram ? `📷 ${td.instagram}` : null,
+      td.phone ? `📞 ${td.phone}` : null,
+      td.hours ? `🕐 ${td.hours}` : null,
+    ].filter(Boolean);
+    if (infoLines.length) parts.push('\n' + infoLines.join('\n'));
+    if (td.menuPricesContent) parts.push(`\n🍽 메뉴 & 가격\n${td.menuPricesContent}`);
+    if (td.locationInfoContent) parts.push(`\n📍 위치정보\n${td.locationInfoContent}`);
+    if (td.waitingContent) parts.push(`\n⏳ 웨이팅\n${td.waitingContent}`);
+    if (td.reviewContent) parts.push(`\n✨ 총평\n${td.reviewContent}`);
+    if (td.menuRatings?.length) {
+      parts.push('\n⭐ 메뉴별 별점');
+      td.menuRatings.forEach(m => {
+        const stars = '★'.repeat(m.rating) + '☆'.repeat(5 - m.rating);
+        parts.push(`${m.name} ${stars} (${m.rating}/5)${m.description ? ` - ${m.description}` : ''}`);
+      });
+    }
+    text = parts.join('\n');
+  } else if (data.type === 'interleaved') {
     text = data.segments.join('\n\n');
   } else {
     text = data.content;
@@ -94,10 +235,22 @@ async function copyAll() {
 
 /* ===== 해시태그 생성 ===== */
 async function generateHashtags(data) {
-  const content = data.type === 'interleaved'
-    ? (data.segments || []).join('\n\n')
-    : (data.content || '');
-  const topic = data.topic || '';
+  let content = '';
+  let topic = '';
+
+  if (data.type === 'template') {
+    const td = data.templateData;
+    topic = td.name || '';
+    content = [td.menuPricesContent, td.locationInfoContent, td.waitingContent, td.reviewContent]
+      .filter(Boolean).join('\n\n');
+  } else if (data.type === 'interleaved') {
+    content = (data.segments || []).join('\n\n');
+    topic = data.topic || '';
+  } else {
+    content = data.content || '';
+    topic = data.topic || '';
+  }
+
   if (!content && !topic) return;
 
   document.getElementById('hashtag-loading').style.display = 'block';
@@ -112,7 +265,7 @@ async function generateHashtags(data) {
     const { hashtags } = await res.json();
     renderHashtags(hashtags);
   } catch {
-    // 해시태그 실패는 조용히 처리
+    // 조용히 처리
   } finally {
     document.getElementById('hashtag-loading').style.display = 'none';
   }
@@ -137,6 +290,44 @@ async function copyHashtags() {
     setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
   } catch {
     alert('복사에 실패했습니다.');
+  }
+}
+
+/* ===== 저장 ===== */
+async function savePost() {
+  const data = JSON.parse(sessionStorage.getItem('blogResult'));
+  if (!data) return;
+
+  const btns = [document.getElementById('btn-save'), document.getElementById('btn-save-bottom')];
+
+  const title = data.topic || (data.templateData?.blogTitle) || (data.templateData?.name) || '제목 없음';
+  const storeName = data.templateData?.name || null;
+
+  const hashtagEls = document.querySelectorAll('.hashtag');
+  const hashtags = Array.from(hashtagEls).map(el => el.textContent);
+
+  btns.forEach(btn => { if (btn) { btn.disabled = true; btn.textContent = '저장 중...'; } });
+
+  try {
+    const res = await fetch('/api/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, storeName, content: data, hashtags }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `서버 오류 (${res.status})`);
+    }
+
+    btns.forEach(btn => {
+      if (!btn) return;
+      btn.textContent = '저장됨 ✓';
+      btn.classList.add('saved');
+    });
+  } catch (err) {
+    alert(`저장 실패: ${err.message}`);
+    btns.forEach(btn => { if (btn) { btn.disabled = false; btn.textContent = '저장'; } });
   }
 }
 
