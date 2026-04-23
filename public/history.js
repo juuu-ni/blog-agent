@@ -55,6 +55,9 @@ async function openPost(id) {
     const res = await fetch(`/api/posts/${id}`);
     if (!res.ok) throw new Error(`서버 오류 (${res.status})`);
     const post = await res.json();
+    if (!post.content || typeof post.content !== 'object') {
+      throw new Error('저장된 글 내용이 없거나 손상되었습니다.');
+    }
     sessionStorage.setItem('blogResult', JSON.stringify(post.content));
     window.location.href = '/result';
   } catch (err) {

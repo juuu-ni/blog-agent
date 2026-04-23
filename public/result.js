@@ -6,15 +6,35 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  const data = JSON.parse(raw);
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    alert('글 데이터를 불러오는 데 실패했습니다. 글 생성 페이지로 이동합니다.');
+    window.location.href = '/generate';
+    return;
+  }
+
+  if (!data || typeof data !== 'object') {
+    alert('저장된 글 데이터가 없습니다. 글 생성 페이지로 이동합니다.');
+    window.location.href = '/generate';
+    return;
+  }
+
   document.getElementById('result-topic').textContent = data.topic || '생성된 블로그 글';
 
-  if (data.type === 'template') {
-    renderTemplate(data);
-  } else if (data.type === 'interleaved') {
-    renderInterleaved(data.segments, data.images || []);
-  } else {
-    renderSingle(data.content);
+  try {
+    if (data.type === 'template') {
+      renderTemplate(data);
+    } else if (data.type === 'interleaved') {
+      renderInterleaved(data.segments, data.images || []);
+    } else {
+      renderSingle(data.content);
+    }
+  } catch (err) {
+    console.error('[result] 렌더링 오류:', err);
+    document.getElementById('result-body').innerHTML =
+      '<p style="color:var(--color-error,red);text-align:center;padding:2rem;">글을 표시하는 중 오류가 발생했습니다.</p>';
   }
 
   generateHashtags(data);
@@ -23,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
 /* ===== 템플릿 렌더링 ===== */
 function renderTemplate(data) {
   const td = data.templateData;
+  if (!td) { renderSingle('[템플릿 데이터를 불러올 수 없습니다.]'); return; }
   const si = data.sectionImages || {};
   const body = document.getElementById('result-body');
 
@@ -137,6 +158,10 @@ function renderTemplate(data) {
 
 /* ===== 사진+글 인터리빙 렌더링 ===== */
 function renderInterleaved(segments, images) {
+  if (!Array.isArray(segments) || segments.length === 0) {
+    renderSingle('[글 내용을 불러올 수 없습니다.]');
+    return;
+  }
   const body = document.getElementById('result-body');
   body.innerHTML = '';
 
