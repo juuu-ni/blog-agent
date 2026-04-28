@@ -108,7 +108,7 @@ function renderTemplate(data) {
     if (photos.length === 0) return;
     const blocks = photos.map(p => `
       <div class="tpl-interleave-block">
-        <img src="${p.dataUrl}" alt="${escapeHtml(p.name || title)}" class="tpl-interleave-photo" />
+        ${p.dataUrl ? `<img src="${p.dataUrl}" alt="${escapeHtml(p.name || title)}" class="tpl-interleave-photo" />` : ''}
         ${p.description ? `<div class="tpl-result-content">${escapeHtml(p.description)}</div>` : ''}
       </div>
     `).join('');
@@ -169,7 +169,7 @@ function renderInterleaved(segments, images) {
     const block = document.createElement('div');
     block.className = 'interleaved-block';
 
-    if (images[i]) {
+    if (images[i]?.dataUrl) {
       const img = document.createElement('img');
       img.src = images[i].dataUrl;
       img.alt = images[i].name || `사진 ${i + 1}`;
@@ -318,6 +318,22 @@ async function copyHashtags() {
   }
 }
 
+/* ===== 이미지 dataUrl 제거 (DB 저장용) ===== */
+function stripImagesFromContent(data) {
+  const d = { ...data };
+  if (d.sectionImages) {
+    const si = {};
+    for (const [k, imgs] of Object.entries(d.sectionImages)) {
+      si[k] = (imgs || []).map(({ dataUrl, objectUrl, ...rest }) => rest);
+    }
+    d.sectionImages = si;
+  }
+  if (d.images) {
+    d.images = (d.images || []).map(({ dataUrl, objectUrl, ...rest }) => rest);
+  }
+  return d;
+}
+
 /* ===== 저장 ===== */
 async function savePost() {
   const data = JSON.parse(sessionStorage.getItem('blogResult'));
@@ -337,7 +353,7 @@ async function savePost() {
     const res = await fetch('/api/posts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, storeName, content: data, hashtags }),
+      body: JSON.stringify({ title, storeName, content: stripImagesFromContent(data), hashtags }),
     });
 
     if (!res.ok) {

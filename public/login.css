@@ -1,0 +1,88 @@
+/* ===== 로그인 페이지 ===== */
+.login-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 40px 32px;
+}
+
+.login-logo-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.login-logo-icon {
+  width: 48px;
+  height: 48px;
+}
+
+.login-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.3px;
+}
+
+.login-desc {
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
+.login-error {
+  width: 100%;
+  background: #fff0f0;
+  color: var(--color-error);
+  border: 1px solid #ffd0d0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* ===== 카카오 로그인 버튼 ===== */
+.btn-kakao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 20px;
+  background: #FEE500;
+  color: #191600;
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  font-family: var(--font);
+}
+
+.btn-kakao:hover {
+  background: #f5dc00;
+}
+
+.btn-kakao:active {
+  transform: scale(0.98);
+}
+
+.kakao-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
