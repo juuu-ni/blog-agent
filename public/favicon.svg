@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Background rounded square -->
+  <rect width="32" height="32" rx="7" fill="#03C75A"/>
+
+  <!-- Pen nib -->
+  <path d="M22 6 L26 10 L14 22 L10 22 L10 18 Z" fill="white" opacity="0.95"/>
+  <path d="M10 22 L10 18 L14 22 Z" fill="#02a84e"/>
+  <path d="M24 8 L26 10 L25 11 L23 9 Z" fill="#02a84e"/>
+
+  <!-- Blog lines -->
+  <rect x="6" y="25" width="12" height="1.5" rx="0.75" fill="white" opacity="0.8"/>
+  <rect x="6" y="28" width="8" height="1.5" rx="0.75" fill="white" opacity="0.5"/>
+</svg>
