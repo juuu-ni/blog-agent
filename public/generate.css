@@ -1,3 +1,85 @@
+/* ===== 스텝 인디케이터 ===== */
+.step-indicator-wrap {
+  background: #fff;
+  border-bottom: 1px solid var(--color-border);
+  padding: 14px 20px;
+}
+
+.step-indicator {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.step-bubble {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  color: #999;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+
+.step.active .step-bubble {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.step.done .step-bubble {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.step-label {
+  font-size: 11px;
+  color: var(--color-muted);
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.step.active .step-label {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.step-line {
+  flex: 1;
+  height: 2px;
+  background: var(--color-border);
+  min-width: 40px;
+  max-width: 80px;
+  margin-bottom: 18px;
+}
+
+.done-line {
+  background: var(--color-primary);
+}
+
+@media (max-width: 600px) {
+  .step-label {
+    display: none;
+  }
+
+  .step-line {
+    min-width: 24px;
+  }
+}
+
 /* ===== 프로파일 요약 카드 ===== */
 .card-profile-summary {
   border-left: 3px solid var(--color-primary);

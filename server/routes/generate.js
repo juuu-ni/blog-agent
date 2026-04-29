@@ -40,7 +40,6 @@ router.post('/', async (req, res) => {
 
       const memoLines = [
         templateData.menuPrices ? `메뉴&가격: ${templateData.menuPrices}` : null,
-        templateData.locationInfo ? `위치정보: ${templateData.locationInfo}` : null,
       ].filter(Boolean).join('\n');
 
       const menuHint = Array.isArray(templateData.menuRatings) && templateData.menuRatings.length > 0

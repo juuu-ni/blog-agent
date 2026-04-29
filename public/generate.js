@@ -473,7 +473,6 @@ async function generateTemplatePost() {
       phone: document.getElementById('tpl-phone').value.trim(),
       hours: document.getElementById('tpl-hours').value.trim(),
       menuPrices: document.getElementById('tpl-menu-prices').value.trim(),
-      locationInfo: document.getElementById('tpl-location-info').value.trim(),
       mustInclude: document.getElementById('tpl-must-include').value.trim(),
       menuRatings: menuRatings.filter(m => m.name.trim()),
     };
