@@ -254,6 +254,11 @@ SESSION_SECRET=           # express-session 시크릿
 - 말투 프로파일 Supabase 저장 (기존 localStorage → Supabase 마이그레이션)
 - 말투 프로파일 관리 페이지 (`/style-profiles`) — 속성 직접 편집 기능
 - 파비콘 추가
+- 보안 강화: 자격증명 로그 제거 및 세션 쿠키 보안 옵션 적용 (`httpOnly`, `secure`, `sameSite`)
+- 보안 강화: SQL 인젝션, XSS, CSRF, Rate Limiting 등 전반적인 취약점 수정
+- 보안 강화: Helmet CSP(Content Security Policy) 설정 추가
+- 보안 강화: API 인증 오류 응답 일관성 수정 (401/403 명확히 구분)
+- README.md 작성 (프로젝트 소개 및 설정 가이드)
 
 ### 다음 단계
 
