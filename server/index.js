@@ -17,11 +17,19 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json({ limit: '20mb' }));
+if (!process.env.SESSION_SECRET) {
+  throw new Error('SESSION_SECRET 환경변수가 설정되지 않았습니다.');
+}
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'blog-agent-secret',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 },
+  cookie: {
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+    sameSite: 'strict',
+    secure: process.env.NODE_ENV === 'production',
+  },
 }));
 
 // 인증 라우터 (static 이전에 등록)

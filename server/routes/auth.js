@@ -5,8 +5,6 @@ const router = Router();
 // GET /auth/kakao — 카카오 로그인 페이지로 리다이렉트
 router.get('/kakao', (req, res) => {
   const { KAKAO_REST_API_KEY, KAKAO_REDIRECT_URI } = process.env;
-  console.log('[auth] KAKAO_REST_API_KEY:', KAKAO_REST_API_KEY);
-  console.log('[auth] KAKAO_REDIRECT_URI:', KAKAO_REDIRECT_URI);
 
   if (!KAKAO_REST_API_KEY || KAKAO_REST_API_KEY === 'your-kakao-rest-api-key') {
     return res.status(500).send('.env에 KAKAO_REST_API_KEY가 설정되지 않았습니다.');
