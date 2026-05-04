@@ -1,7 +1,6 @@
 /* ===== 상태 ===== */
 let sampleCount = 1;
 let currentProfile = null;
-const PROFILES_KEY = 'savedProfiles';
 
 document.addEventListener('DOMContentLoaded', () => {
   loadSavedProfiles();
@@ -151,16 +150,10 @@ function goToGenerate() {
   window.location.href = '/generate';
 }
 
-/* ===== 프로파일 저장/불러오기/삭제 ===== */
-function getSavedProfiles() {
-  try {
-    return JSON.parse(localStorage.getItem(PROFILES_KEY)) || [];
-  } catch {
-    return [];
-  }
-}
+/* ===== 프로파일 저장/불러오기/삭제 (Supabase) ===== */
+let _savedProfiles = []; // 메모리 캐시
 
-function saveProfile() {
+async function saveProfile() {
   if (!currentProfile) {
     alert('저장할 프로파일이 없습니다. 먼저 분석을 완료해 주세요.');
     return;
@@ -173,33 +166,49 @@ function saveProfile() {
     return;
   }
 
-  const profiles = getSavedProfiles();
-  const existing = profiles.findIndex(p => p.name === name);
-  if (existing !== -1) {
+  const existing = _savedProfiles.find(p => p.name === name);
+  if (existing) {
     const ok = confirm(`"${name}" 프로파일이 이미 있습니다. 덮어쓸까요?`);
     if (!ok) return;
-    profiles[existing] = { name, profile: currentProfile, savedAt: Date.now() };
-  } else {
-    profiles.push({ name, profile: currentProfile, savedAt: Date.now() });
   }
 
-  localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
-  nameInput.value = '';
-  loadSavedProfiles();
-
   const btn = document.querySelector('.profile-save-row .btn-outline');
-  const orig = btn.textContent;
-  btn.textContent = '저장됨 ✓';
   btn.disabled = true;
-  setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 1500);
+  btn.textContent = '저장 중...';
+
+  try {
+    const res = await fetch('/api/profiles', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, profile: currentProfile }),
+    });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || '저장 실패');
+
+    nameInput.value = '';
+    await loadSavedProfiles();
+
+    btn.textContent = '저장됨 ✓';
+    setTimeout(() => { btn.textContent = '저장'; btn.disabled = false; }, 1500);
+  } catch (err) {
+    alert(`프로파일 저장 실패: ${err.message}`);
+    btn.textContent = '저장';
+    btn.disabled = false;
+  }
 }
 
-function loadSavedProfiles() {
-  const profiles = getSavedProfiles();
+async function loadSavedProfiles() {
   const section = document.getElementById('saved-profiles-section');
   const list = document.getElementById('saved-profiles-list');
 
-  if (profiles.length === 0) {
+  try {
+    const res = await fetch('/api/profiles');
+    if (!res.ok) throw new Error('불러오기 실패');
+    _savedProfiles = await res.json();
+  } catch {
+    _savedProfiles = [];
+  }
+
+  if (_savedProfiles.length === 0) {
     section.style.display = 'none';
     return;
   }
@@ -207,26 +216,26 @@ function loadSavedProfiles() {
   section.style.display = 'block';
   list.innerHTML = '';
 
-  profiles.forEach((item, i) => {
+  _savedProfiles.forEach((item) => {
     const el = document.createElement('div');
     el.className = 'saved-profile-item';
     el.innerHTML = `
       <div class="saved-profile-info">
         <span class="saved-profile-name">${escapeHtml(item.name)}</span>
-        <span class="saved-profile-date">${formatDate(item.savedAt)}</span>
+        <span class="saved-profile-date">${formatDate(item.created_at)}</span>
       </div>
       <div class="saved-profile-actions">
-        <button class="btn btn-outline btn-sm" onclick="applyProfile(${i})">불러오기</button>
-        <button class="btn-remove" onclick="deleteProfile(${i})" title="삭제">✕</button>
+        <button class="btn btn-outline btn-sm" onclick="applyProfile('${item.id}')">불러오기</button>
+        <a href="/style-profiles" class="btn btn-outline btn-sm">수정</a>
+        <button class="btn-remove" onclick="deleteProfile('${item.id}', '${escapeHtml(item.name)}')" title="삭제">✕</button>
       </div>
     `;
     list.appendChild(el);
   });
 }
 
-function applyProfile(index) {
-  const profiles = getSavedProfiles();
-  const item = profiles[index];
+function applyProfile(id) {
+  const item = _savedProfiles.find(p => p.id === id);
   if (!item) return;
 
   currentProfile = item.profile;
@@ -240,13 +249,16 @@ function applyProfile(index) {
   document.getElementById('step-analyze').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function deleteProfile(index) {
-  const profiles = getSavedProfiles();
-  const name = profiles[index]?.name;
+async function deleteProfile(id, name) {
   if (!confirm(`"${name}" 프로파일을 삭제할까요?`)) return;
-  profiles.splice(index, 1);
-  localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
-  loadSavedProfiles();
+
+  try {
+    const res = await fetch(`/api/profiles/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('삭제 실패');
+    await loadSavedProfiles();
+  } catch (err) {
+    alert(`프로파일 삭제 실패: ${err.message}`);
+  }
 }
 
 function escapeHtml(str) {
@@ -258,3 +270,4 @@ function formatDate(ts) {
   const d = new Date(ts);
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 }
+

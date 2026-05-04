@@ -9,6 +9,7 @@ import generateRouter from './routes/generate.js';
 import hashtagsRouter from './routes/hashtags.js';
 import searchPlaceRouter from './routes/search-place.js';
 import postsRouter from './routes/posts.js';
+import profilesRouter from './routes/profiles.js';
 import { requireAuth } from './middleware/requireAuth.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -40,7 +41,8 @@ app.use('/api/analyze', analyzeRouter);
 app.use('/api/generate', generateRouter);
 app.use('/api/hashtags', hashtagsRouter);
 app.use('/api/search-place', searchPlaceRouter);
-app.use('/api/posts', postsRouter);
+app.use('/api/posts', requireAuth, postsRouter);
+app.use('/api/profiles', requireAuth, profilesRouter);
 
 // 로그인 페이지 (인증 불필요)
 app.get('/login', (req, res) => {
@@ -60,6 +62,9 @@ app.get('/result', requireAuth, (req, res) => {
 });
 app.get('/history', requireAuth, (req, res) => {
   res.sendFile(join(__dirname, '../public/history.html'));
+});
+app.get('/style-profiles', requireAuth, (req, res) => {
+  res.sendFile(join(__dirname, '../public/style-profiles.html'));
 });
 
 app.listen(PORT, () => {

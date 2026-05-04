@@ -10,9 +10,11 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: '제목과 내용이 필요합니다.' });
   }
 
+  const userId = req.session.user.id;
+
   const { data, error } = await supabase
     .from('saved_posts')
-    .insert({ title, store_name: storeName || null, content, hashtags: hashtags || [] })
+    .insert({ title, store_name: storeName || null, content, hashtags: hashtags || [], user_id: userId })
     .select('id, title, store_name, created_at')
     .single();
 
@@ -25,9 +27,12 @@ router.post('/', async (req, res) => {
 
 // GET /api/posts — 목록 조회 (content 제외로 응답 경량화)
 router.get('/', async (req, res) => {
+  const userId = req.session.user.id;
+
   const { data, error } = await supabase
     .from('saved_posts')
     .select('id, title, store_name, hashtags, created_at')
+    .eq('user_id', userId)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -39,10 +44,13 @@ router.get('/', async (req, res) => {
 
 // GET /api/posts/:id — 특정 글 전체 조회
 router.get('/:id', async (req, res) => {
+  const userId = req.session.user.id;
+
   const { data, error } = await supabase
     .from('saved_posts')
     .select('*')
     .eq('id', req.params.id)
+    .eq('user_id', userId)
     .single();
 
   if (error) {
@@ -55,10 +63,13 @@ router.get('/:id', async (req, res) => {
 
 // DELETE /api/posts/:id — 글 삭제
 router.delete('/:id', async (req, res) => {
+  const userId = req.session.user.id;
+
   const { error } = await supabase
     .from('saved_posts')
     .delete()
-    .eq('id', req.params.id);
+    .eq('id', req.params.id)
+    .eq('user_id', userId);
 
   if (error) {
     console.error('[posts] delete error:', error);
