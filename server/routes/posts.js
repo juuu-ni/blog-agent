@@ -20,7 +20,7 @@ router.post('/', async (req, res) => {
 
   if (error) {
     console.error('[posts] insert error:', error);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: '글 저장에 실패했습니다.' });
   }
   res.json(data);
 });
@@ -37,7 +37,7 @@ router.get('/', async (req, res) => {
 
   if (error) {
     console.error('[posts] select error:', error);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: '글 목록을 불러오지 못했습니다.' });
   }
   res.json(data);
 });
@@ -56,7 +56,7 @@ router.get('/:id', async (req, res) => {
   if (error) {
     const status = error.code === 'PGRST116' ? 404 : 500;
     console.error('[posts] select single error:', error);
-    return res.status(status).json({ error: error.message });
+    return res.status(status).json({ error: status === 404 ? '글을 찾을 수 없습니다.' : '서버 오류가 발생했습니다.' });
   }
   res.json(data);
 });
@@ -73,7 +73,7 @@ router.delete('/:id', async (req, res) => {
 
   if (error) {
     console.error('[posts] delete error:', error);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: '글 삭제에 실패했습니다.' });
   }
   res.json({ success: true });
 });

@@ -123,11 +123,11 @@ async function searchPlace() {
 
     resultsEl.innerHTML = places.map((p, i) => `
       <div class="place-result-item" onclick="selectPlace(${i})">
-        <div class="place-result-name">${p.name}</div>
+        <div class="place-result-name">${escapeHtml(p.name)}</div>
         <div class="place-result-meta">
-          ${p.category ? `<span>${p.category}</span>` : ''}
-          ${p.address ? `<span>${p.address}</span>` : ''}
-          ${p.telephone ? `<span>${p.telephone}</span>` : ''}
+          ${p.category ? `<span>${escapeHtml(p.category)}</span>` : ''}
+          ${p.address ? `<span>${escapeHtml(p.address)}</span>` : ''}
+          ${p.telephone ? `<span>${escapeHtml(p.telephone)}</span>` : ''}
         </div>
       </div>
     `).join('');
@@ -145,14 +145,14 @@ function selectPlace(index) {
 
   document.getElementById('place-search-results').style.display = 'none';
 
-  const meta = [place.category, place.address, place.telephone].filter(Boolean).join(' · ');
+  const meta = [place.category, place.address, place.telephone].filter(Boolean).map(escapeHtml).join(' · ');
   const selectedEl = document.getElementById('place-selected');
   selectedEl.style.display = 'block';
   selectedEl.innerHTML = `
     <div class="place-selected-header">
       <span class="place-selected-icon">📍</span>
       <div class="place-selected-body">
-        <div class="place-selected-name">${place.name}</div>
+        <div class="place-selected-name">${escapeHtml(place.name)}</div>
         ${meta ? `<div class="place-selected-detail">${meta}</div>` : ''}
       </div>
       <button class="btn-remove" onclick="clearPlace()" title="선택 해제">✕</button>
@@ -289,6 +289,15 @@ function renderMenuRatings() {
 
 function escapeAttr(str) {
   return (str || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+function escapeHtml(str) {
+  return (str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 /* ===== 일반 사진 업로드 ===== */

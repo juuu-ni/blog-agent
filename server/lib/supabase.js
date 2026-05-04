@@ -15,11 +15,9 @@
  * -- 기존 테이블에 user_id 컬럼 추가 (이미 테이블이 있는 경우)
  * alter table saved_posts add column if not exists user_id text;
  *
- * -- 공개 접근 허용 (Row Level Security 비활성화 또는 아래 정책 사용)
- * alter table saved_posts enable row level security;
- *
- * create policy "allow all" on saved_posts
- *   for all using (true) with check (true);
+ * -- 서버(service_role 키)만 접근하므로 RLS는 비활성화 상태로 유지
+ * -- (anon 키 사용 시 아래 정책으로 교체 필요)
+ * alter table saved_posts disable row level security;
  *
  * -- 말투 프로파일 테이블
  * create table style_profiles (
@@ -30,10 +28,7 @@
  *   created_at  timestamptz default now()
  * );
  *
- * alter table style_profiles enable row level security;
- *
- * create policy "allow all" on style_profiles
- *   for all using (true) with check (true);
+ * alter table style_profiles disable row level security;
  */
 
 import { createClient } from '@supabase/supabase-js';

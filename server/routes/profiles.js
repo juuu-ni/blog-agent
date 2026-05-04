@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
 
   if (error) {
     console.error('[profiles] select error:', error);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
   }
   res.json(data);
 });
@@ -44,7 +44,7 @@ router.post('/', async (req, res) => {
 
   if (error) {
     console.error('[profiles] insert error:', error);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
   }
   res.json(data);
 });
@@ -68,7 +68,7 @@ router.put('/:id', async (req, res) => {
 
   if (error) {
     console.error('[profiles] update error:', error);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
   }
   res.json(data);
 });
@@ -85,7 +85,7 @@ router.delete('/:id', async (req, res) => {
 
   if (error) {
     console.error('[profiles] delete error:', error);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: '서버 오류가 발생했습니다.' });
   }
   res.json({ success: true });
 });

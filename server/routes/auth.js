@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { randomBytes } from 'crypto';
 
 const router = Router();
 
@@ -10,18 +11,27 @@ router.get('/kakao', (req, res) => {
     return res.status(500).send('.env에 KAKAO_REST_API_KEY가 설정되지 않았습니다.');
   }
 
+  const state = randomBytes(16).toString('hex');
+  req.session.oauthState = state;
+
   const url = new URL('https://kauth.kakao.com/oauth/authorize');
   url.searchParams.set('client_id', KAKAO_REST_API_KEY);
   url.searchParams.set('redirect_uri', KAKAO_REDIRECT_URI);
   url.searchParams.set('response_type', 'code');
+  url.searchParams.set('state', state);
   res.redirect(url.toString());
 });
 
 // GET /auth/kakao/callback — 토큰 교환 + 사용자 정보 세션 저장
 router.get('/kakao/callback', async (req, res) => {
   const { KAKAO_REST_API_KEY, KAKAO_CLIENT_SECRET, KAKAO_REDIRECT_URI } = process.env;
-  const { code } = req.query;
+  const { code, state } = req.query;
   if (!code) return res.redirect('/login?error=1');
+
+  if (!state || state !== req.session.oauthState) {
+    return res.redirect('/login?error=1');
+  }
+  delete req.session.oauthState;
 
   try {
     const tokenRes = await fetch('https://kauth.kakao.com/oauth/token', {
