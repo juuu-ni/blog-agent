@@ -15,7 +15,7 @@
 - **Backend**: Node.js + Express
 - **AI**: Anthropic Claude API (`claude-sonnet-4-6`)
 - **Auth**: Kakao OAuth 2.0 + express-session
-- **Storage**: Supabase (PostgreSQL) — saved_posts 테이블
+- **Storage**: Supabase (PostgreSQL) — saved_posts, style_profiles 테이블
 - **External API**: Naver Local API (장소 검색)
 
 ## 프로젝트 구조
@@ -23,22 +23,25 @@
 ```
 /
 ├── public/
-│   ├── index.html        # 메인 페이지 (샘플 등록 + 스타일 분석)
-│   ├── generate.html     # 글 생성 페이지
-│   ├── result.html       # 생성 결과 표시 페이지
-│   ├── history.html      # 저장된 글 목록 페이지
-│   ├── login.html        # 카카오 로그인 페이지
-│   ├── app.js            # 샘플 등록 & 분석 로직
-│   ├── generate.js       # 글 생성 & 이미지 업로드 로직
-│   ├── result.js         # 결과 표시 & 템플릿 렌더링 로직
-│   ├── history.js        # 저장 글 목록 & CRUD 로직
-│   ├── auth-header.js    # 인증 헤더 (사용자명 + 로그아웃)
-│   ├── style.css         # 전역 스타일
-│   ├── index.css         # 메인 페이지 전용 스타일
-│   ├── generate.css      # 생성 페이지 전용 스타일
-│   ├── result.css        # 결과 페이지 전용 스타일
-│   ├── history.css       # 히스토리 페이지 전용 스타일
-│   ├── login.css         # 로그인 페이지 전용 스타일
+│   ├── index.html           # 메인 페이지 (샘플 등록 + 스타일 분석)
+│   ├── generate.html        # 글 생성 페이지
+│   ├── result.html          # 생성 결과 표시 페이지
+│   ├── history.html         # 저장된 글 목록 페이지
+│   ├── login.html           # 카카오 로그인 페이지
+│   ├── style-profiles.html  # 말투 프로파일 관리 페이지
+│   ├── app.js               # 샘플 등록 & 분석 로직
+│   ├── generate.js          # 글 생성 & 이미지 업로드 로직
+│   ├── result.js            # 결과 표시 & 템플릿 렌더링 로직
+│   ├── history.js           # 저장 글 목록 & CRUD 로직
+│   ├── style-profiles.js    # 말투 프로파일 목록 & 수정 로직
+│   ├── auth-header.js       # 인증 헤더 (사용자명 + 로그아웃)
+│   ├── style.css            # 전역 스타일
+│   ├── index.css            # 메인 페이지 전용 스타일
+│   ├── generate.css         # 생성 페이지 전용 스타일
+│   ├── result.css           # 결과 페이지 전용 스타일
+│   ├── history.css          # 히스토리 페이지 전용 스타일
+│   ├── login.css            # 로그인 페이지 전용 스타일
+│   ├── style-profiles.css   # 말투 프로파일 페이지 전용 스타일
 │   └── favicon.svg
 ├── server/
 │   ├── index.js          # Express 서버 진입점
@@ -48,7 +51,8 @@
 │   │   ├── generate.js   # POST /api/generate
 │   │   ├── hashtags.js   # POST /api/hashtags
 │   │   ├── search-place.js # POST /api/search-place
-│   │   └── posts.js      # CRUD /api/posts
+│   │   ├── posts.js      # CRUD /api/posts
+│   │   └── profiles.js   # CRUD /api/profiles
 │   ├── middleware/
 │   │   └── requireAuth.js # 인증 미들웨어
 │   └── lib/
@@ -62,10 +66,11 @@
 
 1. **로그인** (`/login`) — 카카오 로그인
 2. **샘플 등록** (`/`) — 텍스트 붙여넣기, 여러 개 추가/삭제 가능
-3. **스타일 분석** — 분석 버튼 → 프로파일 결과 표시 → localStorage 저장
+3. **스타일 분석** — 분석 버튼 → 프로파일 결과 표시 → Supabase 저장
 4. **글 생성** (`/generate`) — 주제 입력, 사진 업로드, 장소 검색, 템플릿 모드
 5. **결과 확인** (`/result`) — 생성된 글 표시, 해시태그, 저장
 6. **히스토리** (`/history`) — 저장된 글 목록/조회/삭제
+7. **말투 프로파일** (`/style-profiles`) — 저장된 프로파일 목록/수정/삭제
 
 ## API 설계
 
@@ -133,13 +138,28 @@
 ### /api/posts
 
 ```json
-// POST - 글 저장
+// POST - 글 저장 (user_id 자동 포함)
 { "title": "제목", "storeName": "가게이름", "content": {...}, "hashtags": ["#태그"] }
 
-// GET - 목록 조회 (content 제외)
+// GET - 목록 조회 (로그인 사용자 글만, content 제외)
 [{ "id": "uuid", "title": "제목", "store_name": "가게", "hashtags": [...], "created_at": "..." }]
 
-// GET /:id - 단건 조회 (전체 content 포함)
+// GET /:id - 단건 조회 (전체 content 포함, 본인 글만)
+// DELETE /:id - 삭제 (본인 글만)
+```
+
+### /api/profiles
+
+```json
+// GET - 본인 말투 프로파일 목록
+[{ "id": "uuid", "name": "프로파일명", "profile": {...}, "created_at": "..." }]
+
+// POST - 프로파일 저장 (이름 중복 시 덮어쓰기)
+{ "name": "프로파일명", "profile": { ...StyleProfile } }
+
+// PUT /:id - 프로파일 수정 (이름 + 속성 직접 편집)
+{ "name": "프로파일명", "profile": { ...StyleProfile } }
+
 // DELETE /:id - 삭제
 ```
 
@@ -154,10 +174,19 @@
 ```sql
 create table saved_posts (
   id          uuid        primary key default gen_random_uuid(),
+  user_id     text        not null,   -- 카카오 사용자 ID
   title       text        not null,
   store_name  text,
   content     jsonb,
   hashtags    text[],
+  created_at  timestamptz default now()
+);
+
+create table style_profiles (
+  id          uuid        primary key default gen_random_uuid(),
+  user_id     text        not null,   -- 카카오 사용자 ID
+  name        text        not null,
+  profile     jsonb       not null,   -- StyleProfile JSON
   created_at  timestamptz default now()
 );
 ```
@@ -174,7 +203,8 @@ create table saved_posts (
 - `ANTHROPIC_API_KEY`는 반드시 서버에서만 사용, 클라이언트에 절대 노출 금지
 - 샘플 최소 3개 이상 권장 (분석 정확도)
 - Claude API 응답은 JSON 파싱 실패 대비 try-catch 필수
-- 세션 기반 인증 — 보호된 페이지(`/`, `/generate`, `/result`, `/history`)는 requireAuth 미들웨어 적용
+- 세션 기반 인증 — 보호된 페이지(`/`, `/generate`, `/result`, `/history`, `/style-profiles`)는 requireAuth 미들웨어 적용
+- `/api/posts`, `/api/profiles`도 requireAuth 적용 — user_id 필터로 본인 데이터만 접근 가능
 
 ## 개발 명령어
 
@@ -209,17 +239,20 @@ SESSION_SECRET=           # express-session 시크릿
 - `/api/generate` — 블로그 글 생성 (단일 텍스트 / 사진+글 인터리빙 / 템플릿 모드)
 - `/api/hashtags` — 해시태그 자동 생성
 - `/api/search-place` — 네이버 장소 검색 연동
-- `/api/posts` — 글 저장/목록/조회/삭제 (Supabase)
+- `/api/posts` — 글 저장/목록/조회/삭제 (Supabase, 사용자별 분리)
+- `/api/profiles` — 말투 프로파일 저장/목록/수정/삭제 (Supabase, 사용자별 분리)
 - Kakao OAuth 2.0 로그인/로그아웃
-- 인증 미들웨어 (requireAuth) — 보호된 페이지 접근 제어
-- 페이지 분리 (index → generate → result → history)
+- 인증 미들웨어 (requireAuth) — 보호된 페이지 + API 접근 제어
+- 페이지 분리 (index → generate → result → history → style-profiles)
 - 네이버 스타일 UI 디자인 (페이지별 CSS 분리)
 - 사진 업로드 (드래그앤드롭 + 파일 입력, 다중 선택)
 - 사진+글 인터리빙 기능
 - 식당 리뷰 템플릿 모드 (섹션별 사진, 메뉴 평점, 구조화된 결과)
 - 히스토리 페이지 (카드형 목록, 조회, 삭제)
 - 결과 페이지 복사 기능 (전체 글 / 해시태그만)
-- 글 저장 → Supabase 연동
+- 글 저장 → Supabase 연동 (카카오 계정별 분리)
+- 말투 프로파일 Supabase 저장 (기존 localStorage → Supabase 마이그레이션)
+- 말투 프로파일 관리 페이지 (`/style-profiles`) — 속성 직접 편집 기능
 - 파비콘 추가
 
 ### 다음 단계
