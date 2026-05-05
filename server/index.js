@@ -18,6 +18,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.set('trust proxy', 1);
+
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -42,7 +44,7 @@ app.use(session({
   cookie: {
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    sameSite: 'strict',
+    sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
   },
 }));
