@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>회원가입 · 블로그 에이전트</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="login.css" />
+  <link rel="stylesheet" href="signup.css" />
+</head>
+<body>
+
+  <main class="login-main">
+    <div class="login-card card">
+
+      <!-- View 1: 가입 방법 선택 -->
+      <div id="view-method">
+        <div class="login-logo-wrap" style="margin-bottom: 20px;">
+          <svg class="login-logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="#03C75A"/>
+            <path d="M8 12h8M8 8h5M8 16h6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h2 class="auth-view-title">가입 방법을 선택하세요</h2>
+        <div class="auth-btn-group">
+          <button class="btn-method" onclick="showView('view-email')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            이메일로 가입하기
+          </button>
+          <a href="/auth/kakao" class="btn-kakao">
+            <svg class="kakao-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 3C6.48 3 2 6.58 2 11c0 2.84 1.76 5.33 4.4 6.84l-.9 3.33a.3.3 0 0 0 .45.33L9.8 18.9A11.7 11.7 0 0 0 12 19c5.52 0 10-3.58 10-8s-4.48-8-10-8z" fill="#191600"/>
+            </svg>
+            카카오톡 계정으로 가입하기
+          </a>
+        </div>
+        <div class="signup-login-link">
+          이미 계정이 있으신가요? <a href="/login">로그인</a>
+        </div>
+      </div>
+
+      <!-- View 2: 이메일 가입 폼 -->
+      <div id="view-email" style="display:none;">
+        <h2 class="auth-view-title">이메일로 가입하기</h2>
+        <div id="signup-message" class="login-error" style="display:none;"></div>
+        <div id="signup-success" class="signup-success" style="display:none;">
+          확인 이메일을 보냈습니다. 이메일을 확인해 주세요.
+        </div>
+        <form id="email-signup-form" class="auth-form">
+          <input type="email" id="signup-email" class="auth-input" placeholder="이메일" autocomplete="email" required />
+          <input type="password" id="signup-password" class="auth-input" placeholder="비밀번호 (6자 이상)" autocomplete="new-password" required />
+          <input type="password" id="signup-password-confirm" class="auth-input" placeholder="비밀번호 확인" autocomplete="new-password" required />
+          <button type="submit" class="btn btn-primary auth-btn-full" id="btn-signup-submit">가입하기</button>
+        </form>
+        <button class="btn-back-link" onclick="showView('view-method')">← 돌아가기</button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2025 블로그 글쓰기 에이전트 · Powered by Claude API</p>
+  </footer>
+
+  <script>
+    function showView(id) {
+      ['view-method', 'view-email'].forEach(v => {
+        document.getElementById(v).style.display = v === id ? '' : 'none';
+      });
+    }
+
+    document.getElementById('email-signup-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-password').value;
+      const confirm = document.getElementById('signup-password-confirm').value;
+      const msgEl = document.getElementById('signup-message');
+      const successEl = document.getElementById('signup-success');
+      const submitBtn = document.getElementById('btn-signup-submit');
+
+      msgEl.style.display = 'none';
+      successEl.style.display = 'none';
+
+      if (password !== confirm) {
+        msgEl.textContent = '비밀번호가 일치하지 않습니다.';
+        msgEl.style.display = 'block';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = '가입 중...';
+
+      try {
+        const res = await fetch('/auth/email/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          msgEl.textContent = data.error || '가입에 실패했습니다.';
+          msgEl.style.display = 'block';
+          return;
+        }
+        if (data.needsConfirmation) {
+          document.getElementById('email-signup-form').style.display = 'none';
+          successEl.style.display = 'block';
+          return;
+        }
+        window.location.href = '/';
+      } catch {
+        msgEl.textContent = '오류가 발생했습니다. 다시 시도해 주세요.';
+        msgEl.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '가입하기';
+      }
+    });
+  </script>
+</body>
+</html>

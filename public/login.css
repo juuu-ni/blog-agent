@@ -53,6 +53,94 @@
   text-align: center;
 }
 
+/* ===== 인증 공통 ===== */
+.auth-view-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-text);
+  text-align: center;
+  margin-bottom: 20px;
+  letter-spacing: -0.3px;
+}
+
+.auth-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.auth-btn-full {
+  width: 100%;
+  justify-content: center;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: var(--font);
+  color: var(--color-text);
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.auth-input:focus {
+  border-color: var(--color-primary);
+}
+
+.btn-method {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px 20px;
+  background: #fff;
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 500;
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  font-family: var(--font);
+}
+
+.btn-method:hover {
+  border-color: var(--color-primary);
+  background: #f6fff9;
+}
+
+.btn-back-link {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 8px 0 0;
+  font-family: var(--font);
+  display: block;
+  text-align: center;
+  width: 100%;
+}
+
+.btn-back-link:hover {
+  color: var(--color-text);
+}
+
 /* ===== 카카오 로그인 버튼 ===== */
 .btn-kakao {
   display: flex;

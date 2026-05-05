@@ -13,39 +13,58 @@
 </head>
 <body>
 
-  <header class="site-header">
-    <div class="header-inner">
-      <div class="logo">
-        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="#03C75A"/>
-          <path d="M8 12h8M8 8h5M8 16h6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
-        <span class="logo-text">블로그 에이전트</span>
-      </div>
-    </div>
-  </header>
-
   <main class="login-main">
     <div class="login-card card">
-      <div class="login-logo-wrap">
-        <svg class="login-logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="#03C75A"/>
-          <path d="M8 12h8M8 8h5M8 16h6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
-        <h1 class="login-title">블로그 에이전트</h1>
-        <p class="login-desc">내 말투로 블로그 글을 써주는 AI 에이전트</p>
+
+      <!-- View 1: 랜딩 -->
+      <div id="view-landing">
+        <div class="login-logo-wrap">
+          <svg class="login-logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="#03C75A"/>
+            <path d="M8 12h8M8 8h5M8 16h6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <h1 class="login-title">블로그 에이전트</h1>
+          <p class="login-desc">내 말투로 블로그 글을 써주는 AI 에이전트</p>
+        </div>
+        <div class="auth-btn-group">
+          <button class="btn btn-primary auth-btn-full" onclick="showView('view-method')">로그인</button>
+          <a href="/signup" class="btn btn-outline auth-btn-full">회원가입</a>
+        </div>
       </div>
 
-      <div id="login-error" class="login-error" style="display:none;">
-        로그인 중 오류가 발생했습니다. 다시 시도해 주세요.
+      <!-- View 2: 로그인 방법 선택 -->
+      <div id="view-method" style="display:none;">
+        <h2 class="auth-view-title">로그인 방법을 선택하세요</h2>
+        <div id="login-error" class="login-error" style="display:none;">
+          로그인 중 오류가 발생했습니다. 다시 시도해 주세요.
+        </div>
+        <div class="auth-btn-group">
+          <button class="btn-method" onclick="showView('view-email')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            이메일로 로그인하기
+          </button>
+          <a href="/auth/kakao" class="btn-kakao">
+            <svg class="kakao-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 3C6.48 3 2 6.58 2 11c0 2.84 1.76 5.33 4.4 6.84l-.9 3.33a.3.3 0 0 0 .45.33L9.8 18.9A11.7 11.7 0 0 0 12 19c5.52 0 10-3.58 10-8s-4.48-8-10-8z" fill="#191600"/>
+            </svg>
+            카카오톡 계정으로 로그인하기
+          </a>
+        </div>
+        <button class="btn-back-link" onclick="showView('view-landing')">← 돌아가기</button>
       </div>
 
-      <a href="/auth/kakao" class="btn-kakao">
-        <svg class="kakao-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 3C6.48 3 2 6.58 2 11c0 2.84 1.76 5.33 4.4 6.84l-.9 3.33a.3.3 0 0 0 .45.33L9.8 18.9A11.7 11.7 0 0 0 12 19c5.52 0 10-3.58 10-8s-4.48-8-10-8z" fill="#191600"/>
-        </svg>
-        카카오 로그인
-      </a>
+      <!-- View 3: 이메일 로그인 폼 -->
+      <div id="view-email" style="display:none;">
+        <h2 class="auth-view-title">이메일로 로그인</h2>
+        <div id="email-error" class="login-error" style="display:none;"></div>
+        <form id="email-login-form" class="auth-form">
+          <input type="email" id="login-email" class="auth-input" placeholder="이메일" autocomplete="email" required />
+          <input type="password" id="login-password" class="auth-input" placeholder="비밀번호" autocomplete="current-password" required />
+          <button type="submit" class="btn btn-primary auth-btn-full" id="btn-login-submit">로그인</button>
+        </form>
+        <button class="btn-back-link" onclick="showView('view-method')">← 돌아가기</button>
+      </div>
+
     </div>
   </main>
 
@@ -54,9 +73,49 @@
   </footer>
 
   <script>
+    function showView(id) {
+      ['view-landing', 'view-method', 'view-email'].forEach(v => {
+        document.getElementById(v).style.display = v === id ? '' : 'none';
+      });
+    }
+
     if (new URLSearchParams(location.search).get('error')) {
+      showView('view-method');
       document.getElementById('login-error').style.display = 'block';
     }
+
+    document.getElementById('email-login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const errEl = document.getElementById('email-error');
+      const submitBtn = document.getElementById('btn-login-submit');
+
+      errEl.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.textContent = '로그인 중...';
+
+      try {
+        const res = await fetch('/auth/email/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          errEl.textContent = data.error || '로그인에 실패했습니다.';
+          errEl.style.display = 'block';
+          return;
+        }
+        window.location.href = '/';
+      } catch {
+        errEl.textContent = '오류가 발생했습니다. 다시 시도해 주세요.';
+        errEl.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '로그인';
+      }
+    });
   </script>
 </body>
 </html>

@@ -78,10 +78,15 @@ app.use('/api/search-place', requireAuth, searchPlaceRouter);
 app.use('/api/posts', requireAuth, postsRouter);
 app.use('/api/profiles', requireAuth, profilesRouter);
 
-// 로그인 페이지 (인증 불필요)
+// 로그인/회원가입 페이지 (인증 불필요)
 app.get('/login', (req, res) => {
   if (req.session?.user) return res.redirect('/');
   res.sendFile(join(__dirname, '../public/login.html'));
+});
+
+app.get('/signup', (req, res) => {
+  if (req.session?.user) return res.redirect('/');
+  res.sendFile(join(__dirname, '../public/signup.html'));
 });
 
 // 보호된 페이지 (인증 필요) — express.static이 index.html을 가로채지 않도록 명시적 등록

@@ -1,7 +1,55 @@
 import { Router } from 'express';
 import { randomBytes } from 'crypto';
+import supabase from '../lib/supabase.js';
 
 const router = Router();
+
+// POST /auth/email/login — 이메일/비밀번호 로그인
+router.post('/email/login', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ error: '이메일과 비밀번호를 입력해 주세요.' });
+
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return res.status(401).json({ error: '이메일 또는 비밀번호가 올바르지 않습니다.' });
+
+    req.session.user = {
+      id: data.user.id,
+      nickname: email.split('@')[0],
+      profileImage: null,
+    };
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[auth] email login error:', err);
+    res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+  }
+});
+
+// POST /auth/email/signup — 이메일/비밀번호 회원가입
+router.post('/email/signup', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ error: '이메일과 비밀번호를 입력해 주세요.' });
+  if (password.length < 6) return res.status(400).json({ error: '비밀번호는 6자 이상이어야 합니다.' });
+
+  try {
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) return res.status(400).json({ error: error.message });
+
+    if (!data.session) {
+      return res.json({ ok: true, needsConfirmation: true });
+    }
+
+    req.session.user = {
+      id: data.user.id,
+      nickname: email.split('@')[0],
+      profileImage: null,
+    };
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[auth] email signup error:', err);
+    res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+  }
+});
 
 // GET /auth/kakao — 카카오 로그인 페이지로 리다이렉트
 router.get('/kakao', (req, res) => {
