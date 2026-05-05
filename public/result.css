@@ -256,6 +256,44 @@
   object-fit: cover;
 }
 
+/* ===== 편집 모드 ===== */
+[contenteditable="true"] {
+  border: 1.5px solid #4CAF82;
+  border-radius: 4px;
+  padding: 4px 6px;
+  background: #f8fff9;
+  outline: none;
+  cursor: text;
+  min-height: 1em;
+  display: inline-block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+[contenteditable="true"]:focus {
+  border-color: #2e7d55;
+  box-shadow: 0 0 0 2px rgba(76, 175, 130, 0.2);
+}
+
+.tpl-result-header [contenteditable="true"] {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.12);
+  color: inherit;
+}
+
+.tpl-result-header [contenteditable="true"]:focus {
+  border-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+#btn-edit.editing,
+#btn-edit-bottom.editing {
+  background: #e8f5e9;
+  border-color: #4CAF82;
+  color: #2e7d55;
+  font-weight: 600;
+}
+
 /* ===== 반응형 ===== */
 @media (max-width: 600px) {
   .menu-rating-cards {

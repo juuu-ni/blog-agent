@@ -54,18 +54,18 @@ function renderTemplate(data) {
   // 헤더
   html += `
     <div class="tpl-result-header">
-      ${td.tagLine ? `<div class="tpl-result-tag">${escapeHtml(td.tagLine)}</div>` : ''}
-      <div class="tpl-result-name">${escapeHtml(td.name)}</div>
-      ${td.description ? `<div class="tpl-result-desc">${escapeHtml(td.description)}</div>` : ''}
+      ${td.tagLine ? `<div class="tpl-result-tag" data-tpl-field="tagLine">${escapeHtml(td.tagLine)}</div>` : ''}
+      <div class="tpl-result-name" data-tpl-field="name">${escapeHtml(td.name)}</div>
+      ${td.description ? `<div class="tpl-result-desc" data-tpl-field="description">${escapeHtml(td.description)}</div>` : ''}
     </div>
   `;
 
   // 기본 정보
   const infoRows = [
-    td.location ? { icon: '📍', text: td.location } : null,
-    td.instagram ? { icon: '📷', text: td.instagram } : null,
-    td.phone ? { icon: '📞', text: td.phone } : null,
-    td.hours ? { icon: '🕐', text: td.hours } : null,
+    td.location ? { icon: '📍', text: td.location, field: 'location' } : null,
+    td.instagram ? { icon: '📷', text: td.instagram, field: 'instagram' } : null,
+    td.phone ? { icon: '📞', text: td.phone, field: 'phone' } : null,
+    td.hours ? { icon: '🕐', text: td.hours, field: 'hours' } : null,
   ].filter(Boolean);
 
   if (infoRows.length > 0) {
@@ -74,7 +74,7 @@ function renderTemplate(data) {
         ${infoRows.map(r => `
           <div class="tpl-info-row">
             <span class="tpl-info-icon">${r.icon}</span>
-            <span class="tpl-info-text">${escapeHtml(r.text)}</span>
+            <span class="tpl-info-text" data-tpl-field="${r.field}">${escapeHtml(r.text)}</span>
           </div>
         `).join('')}
       </div>
@@ -83,16 +83,16 @@ function renderTemplate(data) {
 
   // 텍스트 섹션
   const textSections = [
-    { icon: '🍽', title: '메뉴 & 가격', content: td.menuPricesContent },
-    { icon: '📍', title: '위치정보', content: td.locationInfoContent },
-    { icon: '⏳', title: '웨이팅', content: td.waitingContent },
+    { icon: '🍽', title: '메뉴 & 가격', content: td.menuPricesContent, field: 'menuPricesContent' },
+    { icon: '📍', title: '위치정보', content: td.locationInfoContent, field: 'locationInfoContent' },
+    { icon: '⏳', title: '웨이팅', content: td.waitingContent, field: 'waitingContent' },
   ];
-  textSections.forEach(({ icon, title, content }) => {
+  textSections.forEach(({ icon, title, content, field }) => {
     if (!content) return;
     html += `
       <div class="tpl-result-section card">
         <div class="tpl-result-section-title">${icon} ${title}</div>
-        <div class="tpl-result-content">${escapeHtml(content)}</div>
+        <div class="tpl-result-content" data-tpl-field="${field}">${escapeHtml(content)}</div>
       </div>
     `;
   });
@@ -106,10 +106,10 @@ function renderTemplate(data) {
   photoSections.forEach(({ key, icon, title }) => {
     const photos = si[key] || [];
     if (photos.length === 0) return;
-    const blocks = photos.map(p => `
+    const blocks = photos.map((p, idx) => `
       <div class="tpl-interleave-block">
         ${p.dataUrl ? `<img src="${p.dataUrl}" alt="${escapeHtml(p.name || title)}" class="tpl-interleave-photo" />` : ''}
-        ${p.description ? `<div class="tpl-result-content">${escapeHtml(p.description)}</div>` : ''}
+        ${p.description ? `<div class="tpl-result-content" data-tpl-field="photo-${key}-${idx}">${escapeHtml(p.description)}</div>` : ''}
       </div>
     `).join('');
     html += `
@@ -125,22 +125,22 @@ function renderTemplate(data) {
     html += `
       <div class="tpl-result-section card">
         <div class="tpl-result-section-title">✨ 총평</div>
-        <div class="tpl-result-content">${escapeHtml(td.reviewContent)}</div>
+        <div class="tpl-result-content" data-tpl-field="reviewContent">${escapeHtml(td.reviewContent)}</div>
       </div>
     `;
   }
 
   // 메뉴 별점
   if (td.menuRatings?.length > 0) {
-    const cards = td.menuRatings.map(m => {
+    const cards = td.menuRatings.map((m, idx) => {
       const filled = '★'.repeat(Math.max(0, Math.min(5, m.rating)));
       const empty = '☆'.repeat(5 - Math.max(0, Math.min(5, m.rating)));
       return `
         <div class="menu-rating-card">
-          <div class="menu-rating-card-name">${escapeHtml(m.name)}</div>
+          <div class="menu-rating-card-name" data-tpl-field="menu-${idx}-name">${escapeHtml(m.name)}</div>
           <div class="menu-rating-stars">${filled}${empty}</div>
           <div class="menu-rating-score">${m.rating} / 5</div>
-          ${m.description ? `<div class="menu-rating-desc">${escapeHtml(m.description)}</div>` : ''}
+          ${m.description ? `<div class="menu-rating-desc" data-tpl-field="menu-${idx}-desc">${escapeHtml(m.description)}</div>` : ''}
         </div>
       `;
     }).join('');
@@ -372,7 +372,67 @@ async function savePost() {
   }
 }
 
-/* ===== 다시 생성하기 ===== */
-function regenerate() {
-  window.location.href = '/generate';
+/* ===== 인라인 편집 ===== */
+let isEditing = false;
+
+function toggleEditMode() {
+  const raw = sessionStorage.getItem('blogResult');
+  if (!raw) return;
+  let data;
+  try { data = JSON.parse(raw); } catch { return; }
+
+  const editBtns = [document.getElementById('btn-edit'), document.getElementById('btn-edit-bottom')];
+
+  if (!isEditing) {
+    if (data.type === 'template') {
+      document.querySelectorAll('[data-tpl-field]').forEach(el => { el.contentEditable = 'true'; });
+    } else if (data.type === 'interleaved') {
+      document.querySelectorAll('.interleaved-text').forEach(el => { el.contentEditable = 'true'; });
+    } else {
+      document.querySelectorAll('.result-content').forEach(el => { el.contentEditable = 'true'; });
+    }
+    editBtns.forEach(btn => { if (btn) { btn.textContent = '편집 완료'; btn.classList.add('editing'); } });
+    isEditing = true;
+  } else {
+    if (data.type === 'template') {
+      document.querySelectorAll('[data-tpl-field]').forEach(el => {
+        const field = el.dataset.tplField;
+        const val = el.innerText.trimEnd();
+        if (['tagLine', 'name', 'description', 'location', 'instagram', 'phone', 'hours',
+             'menuPricesContent', 'locationInfoContent', 'waitingContent', 'reviewContent'].includes(field)) {
+          data.templateData[field] = val;
+        } else if (field.startsWith('photo-')) {
+          const parts = field.split('-');
+          const sectionKey = parts[1];
+          const idx = parseInt(parts[2], 10);
+          if (data.sectionImages?.[sectionKey]?.[idx]) {
+            data.sectionImages[sectionKey][idx].description = val;
+          }
+        } else if (field.startsWith('menu-')) {
+          const parts = field.split('-');
+          const idx = parseInt(parts[1], 10);
+          const prop = parts[2];
+          if (data.templateData.menuRatings?.[idx]) {
+            if (prop === 'name') data.templateData.menuRatings[idx].name = val;
+            if (prop === 'desc') data.templateData.menuRatings[idx].description = val;
+          }
+        }
+      });
+    } else if (data.type === 'interleaved') {
+      document.querySelectorAll('.interleaved-text').forEach((el, i) => {
+        if (Array.isArray(data.segments) && i < data.segments.length) {
+          data.segments[i] = el.innerText.trimEnd();
+        }
+      });
+    } else {
+      const el = document.querySelector('.result-content');
+      if (el) data.content = el.innerText.trimEnd();
+    }
+
+    sessionStorage.setItem('blogResult', JSON.stringify(data));
+    document.querySelectorAll('[contenteditable="true"]').forEach(el => el.removeAttribute('contenteditable'));
+    editBtns.forEach(btn => { if (btn) { btn.textContent = '편집'; btn.classList.remove('editing'); } });
+    isEditing = false;
+  }
 }
+

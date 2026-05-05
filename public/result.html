@@ -36,7 +36,7 @@
     <div class="result-page-header">
       <h1 class="result-page-title" id="result-topic"></h1>
       <div class="result-actions">
-        <button class="btn btn-outline" onclick="regenerate()">다시 생성하기</button>
+        <button class="btn btn-outline" id="btn-edit" onclick="toggleEditMode()">편집</button>
         <button class="btn btn-outline" id="btn-save" onclick="savePost()">저장</button>
         <button class="btn btn-primary" onclick="copyAll()">전체 복사</button>
       </div>
@@ -63,7 +63,7 @@
 
     <!-- 하단 액션 -->
     <div class="result-bottom-actions">
-      <button class="btn btn-outline" onclick="regenerate()">다시 생성하기</button>
+      <button class="btn btn-outline" id="btn-edit-bottom" onclick="toggleEditMode()">편집</button>
       <button class="btn btn-outline" id="btn-save-bottom" onclick="savePost()">저장</button>
       <button class="btn btn-primary" onclick="copyAll()" id="btn-copy-bottom">전체 복사</button>
     </div>
