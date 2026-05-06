@@ -259,6 +259,17 @@ SESSION_SECRET=           # express-session 시크릿
 - 보안 강화: Helmet CSP(Content Security Policy) 설정 추가
 - 보안 강화: API 인증 오류 응답 일관성 수정 (401/403 명확히 구분)
 - README.md 작성 (프로젝트 소개 및 설정 가이드)
+- 로그인 페이지 CSP 버그 수정 — 인라인 스크립트를 `public/login.js`로 분리 (Helmet CSP `scriptSrc` 차단 문제 해결)
+- 로그인/회원가입 UI 통합 — LOG IN / SIGN UP 탭 토글, 슬라이딩 인디케이터, 아이콘 인풋, SUBMIT 버튼 디자인
+- `/signup` 라우트를 `login.html`로 통합 서빙 (pathname으로 기본 탭 결정)
+- `/api/map-image` — 가게 선택 시 OSM 정적 지도 이미지 자동 추가 (네이버 API `mapx`/`mapy` 좌표 활용, 일반·템플릿 모드 모두 Claude에 전달)
+
+### 주의사항 (추가)
+
+- Helmet CSP `scriptSrc: ["'self'"]`가 인라인 `<script>` 블록을 차단함 → 모든 JS는 반드시 외부 파일로 분리
+- 네이버 Local Search API `mapx`/`mapy`는 WGS84 × 10⁶ 형식 → 좌표 변환 시 `/ 1_000_000` 사용
+- 영업시간은 네이버 Local Search API에서 제공하지 않아 자동 기입 불가 (수동 입력)
+- OSM 정적 지도(`staticmap.openstreetmap.de`) 응답이 3~5초 소요될 수 있음
 
 ### 다음 단계
 
