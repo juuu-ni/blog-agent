@@ -41,6 +41,8 @@ router.post('/', async (req, res) => {
       category: item.category,
       address: item.roadAddress || item.address,
       telephone: item.telephone,
+      mapx: item.mapx,
+      mapy: item.mapy,
     }));
 
     res.json({ places });

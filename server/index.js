@@ -10,6 +10,7 @@ import analyzeRouter from './routes/analyze.js';
 import generateRouter from './routes/generate.js';
 import hashtagsRouter from './routes/hashtags.js';
 import searchPlaceRouter from './routes/search-place.js';
+import mapImageRouter from './routes/map-image.js';
 import postsRouter from './routes/posts.js';
 import profilesRouter from './routes/profiles.js';
 import { requireAuth } from './middleware/requireAuth.js';
@@ -75,6 +76,7 @@ app.use('/api/analyze', requireAuth, claudeLimiter, analyzeRouter);
 app.use('/api/generate', requireAuth, claudeLimiter, generateRouter);
 app.use('/api/hashtags', requireAuth, claudeLimiter, hashtagsRouter);
 app.use('/api/search-place', requireAuth, searchPlaceRouter);
+app.use('/api/map-image', requireAuth, mapImageRouter);
 app.use('/api/posts', requireAuth, postsRouter);
 app.use('/api/profiles', requireAuth, profilesRouter);
 
