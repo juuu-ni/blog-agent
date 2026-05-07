@@ -9,7 +9,6 @@ let _savedProfiles = [];
 let isTemplateMode = false;
 let sectionImages = { exterior: [], interior: [], detail: [] };
 let menuRatings = [];
-let mapImageData = null; // 지도 이미지 (두 모드 공통)
 
 /* ===== 초기화 ===== */
 document.addEventListener('DOMContentLoaded', () => {
@@ -210,49 +209,14 @@ function selectPlace(index) {
   `;
 
   if (isTemplateMode) applyPlaceToTemplate(place);
-  if (place.mapx && place.mapy) addMapImage(place);
 }
 
 function clearPlace() {
-  mapImageData = null;
-  document.getElementById('map-image-preview').style.display = 'none';
-  document.getElementById('map-image-preview').innerHTML = '';
   selectedPlace = null;
   document.getElementById('place-selected').style.display = 'none';
   document.getElementById('place-input').value = '';
 }
 
-async function addMapImage(place) {
-  const previewEl = document.getElementById('map-image-preview');
-  previewEl.style.display = 'block';
-  previewEl.innerHTML = '<div class="map-image-loading">지도 불러오는 중...</div>';
-
-  try {
-    const res = await fetch('/api/map-image', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mapx: place.mapx, mapy: place.mapy }),
-    });
-    if (!res.ok) {
-      previewEl.style.display = 'none';
-      return;
-    }
-    const { base64, mediaType } = await res.json();
-    const dataUrl = `data:${mediaType};base64,${base64}`;
-
-    mapImageData = { data: base64, mediaType, dataUrl, name: `${place.name} 위치` };
-
-    previewEl.innerHTML = `
-      <div class="map-image-wrap">
-        <img src="${dataUrl}" alt="${escapeHtml(place.name)} 위치" class="map-image-img" />
-        <span class="map-image-badge">📍 지도</span>
-      </div>
-    `;
-  } catch (err) {
-    console.error('[map-image]', err);
-    previewEl.style.display = 'none';
-  }
-}
 
 /* ===== 템플릿 모드 토글 ===== */
 function toggleTemplateMode() {
@@ -514,10 +478,7 @@ async function generatePost() {
         topic,
         mustInclude: mustInclude || null,
         profile: styleProfile,
-        images: [
-          ...(mapImageData ? [{ data: mapImageData.data, mediaType: mapImageData.mediaType }] : []),
-          ...uploadedImages.map(({ data, mediaType }) => ({ data, mediaType })),
-        ],
+        images: uploadedImages.map(({ data, mediaType }) => ({ data, mediaType })),
         place: selectedPlace || null,
       }),
     });
@@ -600,7 +561,6 @@ async function generateTemplatePost() {
           interior: sectionImages.interior.map(({ data, mediaType }) => ({ data, mediaType })),
           detail: sectionImages.detail.map(({ data, mediaType }) => ({ data, mediaType })),
         },
-        mapImage: mapImageData ? { data: mapImageData.data, mediaType: mapImageData.mediaType } : null,
       }),
     });
 

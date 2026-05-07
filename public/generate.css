@@ -327,43 +327,6 @@
   display: block;
 }
 
-.map-image-badge {
-  position: absolute;
-  bottom: 6px;
-  left: 6px;
-  background: rgba(0, 0, 0, 0.55);
-  color: #fff;
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 4px;
-  pointer-events: none;
-}
-
-/* 가게 선택 영역 아래 지도 미리보기 */
-.map-image-preview {
-  margin-top: 10px;
-}
-
-.map-image-loading {
-  font-size: 13px;
-  color: var(--color-muted);
-  padding: 8px 0;
-}
-
-.map-image-wrap {
-  position: relative;
-  display: inline-block;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid var(--color-border);
-}
-
-.map-image-img {
-  display: block;
-  width: 100%;
-  max-width: 360px;
-  height: auto;
-}
 
 .photo-remove-btn {
   position: absolute;
