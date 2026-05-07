@@ -54,13 +54,19 @@
 
   <main>
 
-    <!-- 프로파일 요약 -->
+    <!-- 프로파일 선택 -->
     <section class="card card-profile-summary" id="profile-summary">
       <div class="card-header">
-        <span class="step-badge" style="background:#e8faf0; color:#03C75A;">✓</span>
-        <h2>분석된 말투 프로파일</h2>
+        <span class="step-badge" id="profile-step-badge">2</span>
+        <h2>말투 프로파일 선택</h2>
       </div>
-      <div class="profile-grid" id="profile-grid"></div>
+      <div class="profile-select-row">
+        <select id="profile-select" class="profile-select" onchange="onProfileSelect(this.value)">
+          <option value="">불러오는 중...</option>
+        </select>
+        <a href="/" class="btn btn-outline btn-sm">새로 분석</a>
+      </div>
+      <div class="profile-grid" id="profile-grid" style="display:none; margin-top:14px;"></div>
     </section>
 
     <!-- 글 생성 -->

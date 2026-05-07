@@ -3,6 +3,7 @@ let styleProfile = null;
 let uploadedImages = []; // 일반 모드 사진
 let selectedPlace = null;
 let _placeResults = [];
+let _savedProfiles = [];
 
 // 템플릿 모드
 let isTemplateMode = false;
@@ -12,15 +13,7 @@ let mapImageData = null; // 지도 이미지 (두 모드 공통)
 
 /* ===== 초기화 ===== */
 document.addEventListener('DOMContentLoaded', () => {
-  const stored = localStorage.getItem('styleProfile');
-  if (!stored) {
-    alert('말투 프로파일이 없습니다. 먼저 분석을 완료해 주세요.');
-    window.location.href = '/';
-    return;
-  }
-
-  styleProfile = JSON.parse(stored);
-  renderProfileSummary(styleProfile);
+  loadProfiles();
 
   document.getElementById('topic-input').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') generatePost();
@@ -45,6 +38,62 @@ document.addEventListener('DOMContentLoaded', () => {
   renderMenuRatings();
   document.getElementById('topic-input').focus();
 });
+
+/* ===== 프로파일 목록 로드 & 선택 ===== */
+async function loadProfiles() {
+  const select = document.getElementById('profile-select');
+  try {
+    const res = await fetch('/api/profiles');
+    if (!res.ok) throw new Error();
+    _savedProfiles = await res.json();
+
+    if (_savedProfiles.length === 0) {
+      select.innerHTML = '<option value="">저장된 프로파일이 없습니다 — 먼저 분석을 완료해 주세요</option>';
+      return;
+    }
+
+    select.innerHTML =
+      '<option value="">프로파일을 선택해 주세요</option>' +
+      _savedProfiles.map(p =>
+        `<option value="${escapeAttr(p.id)}">${escapeHtml(p.name)}</option>`
+      ).join('');
+
+    const pendingId = sessionStorage.getItem('pendingProfileId');
+    if (pendingId) {
+      sessionStorage.removeItem('pendingProfileId');
+      const exists = _savedProfiles.some(p => p.id === pendingId);
+      if (exists) {
+        select.value = pendingId;
+        onProfileSelect(pendingId);
+      }
+    }
+  } catch {
+    select.innerHTML = '<option value="">프로파일 불러오기 실패</option>';
+  }
+}
+
+function onProfileSelect(id) {
+  const grid = document.getElementById('profile-grid');
+  const badge = document.getElementById('profile-step-badge');
+
+  if (!id) {
+    styleProfile = null;
+    grid.style.display = 'none';
+    grid.innerHTML = '';
+    badge.textContent = '2';
+    badge.removeAttribute('style');
+    return;
+  }
+
+  const found = _savedProfiles.find(p => p.id === id);
+  if (!found) return;
+
+  styleProfile = found.profile;
+  badge.textContent = '✓';
+  badge.style.cssText = 'background:#e8faf0; color:#03C75A;';
+  grid.style.display = '';
+  renderProfileSummary(styleProfile);
+}
 
 /* ===== 프로파일 렌더링 ===== */
 function renderProfileSummary(profile) {
@@ -427,6 +476,12 @@ function renderPreviews() {
 
 /* ===== 글 생성 (진입점) ===== */
 async function generatePost() {
+  if (!styleProfile) {
+    alert('말투 프로파일을 선택해 주세요.');
+    document.getElementById('profile-select').focus();
+    return;
+  }
+
   if (isTemplateMode) {
     return generateTemplatePost();
   }
@@ -498,6 +553,12 @@ async function generatePost() {
 
 /* ===== 템플릿 글 생성 ===== */
 async function generateTemplatePost() {
+  if (!styleProfile) {
+    alert('말투 프로파일을 선택해 주세요.');
+    document.getElementById('profile-select').focus();
+    return;
+  }
+
   const name = document.getElementById('tpl-name').value.trim();
   if (!name) {
     alert('가게 이름을 입력해 주세요.');

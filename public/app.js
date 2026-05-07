@@ -239,7 +239,7 @@ function applyProfile(id) {
   if (!item) return;
 
   currentProfile = item.profile;
-  localStorage.setItem('styleProfile', JSON.stringify(item.profile));
+  sessionStorage.setItem('pendingProfileId', id);
   renderProfile(item.profile);
   setActiveStep(3);
 

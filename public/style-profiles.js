@@ -150,7 +150,7 @@ async function saveEdit(id) {
 function applyProfile(id) {
   const item = _profiles.find(p => p.id === id);
   if (!item) return;
-  localStorage.setItem('styleProfile', JSON.stringify(item.profile));
+  sessionStorage.setItem('pendingProfileId', id);
   window.location.href = '/generate';
 }
 

@@ -85,6 +85,30 @@
   border-left: 3px solid var(--color-primary);
 }
 
+/* ===== 프로파일 셀렉터 ===== */
+.profile-select-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.profile-select {
+  flex: 1;
+  padding: 9px 12px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 8px;
+  font-family: var(--font);
+  font-size: 0.9rem;
+  color: #333;
+  background: #fff;
+  cursor: pointer;
+}
+
+.profile-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
 /* ===== 꼭 들어갈 내용 ===== */
 .must-include-section {
   margin-top: 14px;
