@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  document.getElementById('result-topic').textContent = data.topic || '생성된 블로그 글';
+  document.getElementById('result-topic').value = data.topic || '생성된 블로그 글';
 
   try {
     if (data.type === 'template') {
@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   generateHashtags(data);
+  suggestTitle(data);
 });
 
 /* ===== 템플릿 렌더링 ===== */
@@ -47,7 +48,7 @@ function renderTemplate(data) {
   const si = data.sectionImages || {};
   const body = document.getElementById('result-body');
 
-  document.getElementById('result-topic').textContent = td.blogTitle || td.name || '맛집 리뷰';
+  document.getElementById('result-topic').value = td.blogTitle || td.name || '맛집 리뷰';
 
   let html = '';
 
@@ -341,7 +342,8 @@ async function savePost() {
 
   const btns = [document.getElementById('btn-save'), document.getElementById('btn-save-bottom')];
 
-  const title = data.topic || (data.templateData?.blogTitle) || (data.templateData?.name) || '제목 없음';
+  const title = document.getElementById('result-topic').value.trim()
+    || data.topic || (data.templateData?.blogTitle) || (data.templateData?.name) || '제목 없음';
   const storeName = data.templateData?.name || null;
 
   const hashtagEls = document.querySelectorAll('.hashtag');
@@ -436,3 +438,41 @@ function toggleEditMode() {
   }
 }
 
+/* ===== 제목 자동 추천 ===== */
+async function suggestTitle(data) {
+  const statusEl = document.getElementById('title-suggest-status');
+  const titleEl = document.getElementById('result-topic');
+
+  let content = '';
+  if (data.type === 'single') {
+    content = data.content || '';
+  } else if (data.type === 'interleaved') {
+    content = (data.segments || []).filter(s => typeof s === 'string').join(' ');
+  } else if (data.type === 'template') {
+    content = data.templateData?.reviewContent || data.templateData?.description || '';
+  }
+
+  const storeName = data.templateData?.name || data.placeInfo?.name || '';
+  const rawLocation = data.templateData?.location || data.placeInfo?.address || '';
+  const location = rawLocation.split(' ').slice(0, 2).join(' ');
+
+  if (statusEl) statusEl.textContent = '제목 추천 중...';
+
+  try {
+    const res = await fetch('/api/suggest-title', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topic: data.topic, content, storeName, location }),
+    });
+
+    if (!res.ok) throw new Error('추천 실패');
+
+    const { title } = await res.json();
+    if (title && titleEl) {
+      titleEl.value = title;
+      if (statusEl) statusEl.textContent = '제목 자동 추천됨 · 직접 수정할 수 있어요';
+    }
+  } catch {
+    if (statusEl) statusEl.textContent = '';
+  }
+}

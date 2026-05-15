@@ -501,6 +501,7 @@ async function generatePost() {
       ...result,
       topic,
       images: compressedImages,
+      placeInfo: selectedPlace || null,
     }));
 
     window.location.href = '/result';

@@ -34,7 +34,10 @@
 
   <main>
     <div class="result-page-header">
-      <h1 class="result-page-title" id="result-topic"></h1>
+      <div class="result-title-wrap">
+        <input type="text" class="result-page-title" id="result-topic" placeholder="제목을 입력하세요" />
+        <span class="title-suggest-status" id="title-suggest-status"></span>
+      </div>
       <div class="result-actions">
         <button class="btn btn-outline" id="btn-edit" onclick="toggleEditMode()">편집</button>
         <button class="btn btn-outline" id="btn-save" onclick="savePost()">저장</button>

@@ -12,6 +12,7 @@ import hashtagsRouter from './routes/hashtags.js';
 import searchPlaceRouter from './routes/search-place.js';
 import postsRouter from './routes/posts.js';
 import profilesRouter from './routes/profiles.js';
+import suggestTitleRouter from './routes/suggest-title.js';
 import { requireAuth } from './middleware/requireAuth.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -77,6 +78,7 @@ app.use('/api/hashtags', requireAuth, claudeLimiter, hashtagsRouter);
 app.use('/api/search-place', requireAuth, searchPlaceRouter);
 app.use('/api/posts', requireAuth, postsRouter);
 app.use('/api/profiles', requireAuth, profilesRouter);
+app.use('/api/suggest-title', requireAuth, claudeLimiter, suggestTitleRouter);
 
 // 로그인/회원가입 페이지 (인증 불필요)
 app.get('/login', (req, res) => {
