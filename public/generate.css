@@ -552,6 +552,112 @@
   margin-top: 4px;
 }
 
+/* ===== 임시저장 배너 ===== */
+.draft-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #fffbea;
+  border-bottom: 1px solid #f0d070;
+  padding: 10px 20px;
+  font-size: 13.5px;
+}
+
+.draft-banner-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.draft-banner-text {
+  font-weight: 600;
+  color: #6b4f00;
+}
+
+.draft-banner-note {
+  font-size: 12px;
+  color: #9a7a30;
+}
+
+.draft-banner-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-draft-restore {
+  padding: 5px 14px;
+  background: #f5c200;
+  color: #3d2e00;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font);
+}
+
+.btn-draft-restore:hover {
+  background: #e0b000;
+}
+
+.btn-draft-dismiss {
+  padding: 5px 12px;
+  background: transparent;
+  color: #9a7a30;
+  border: 1px solid #e0c870;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: var(--font);
+}
+
+.btn-draft-dismiss:hover {
+  background: #f5efc0;
+}
+
+/* ===== 임시저장 버튼 ===== */
+.btn-draft {
+  padding: 9px 14px;
+  background: #f2f2f2;
+  color: #555;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+  font-family: var(--font);
+}
+
+.btn-draft:hover {
+  background: #e8e8e8;
+  border-color: #c8c8c8;
+}
+
+.btn-draft:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tpl-generate-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.tpl-generate-row .btn-draft-tpl {
+  flex-shrink: 0;
+}
+
+.tpl-generate-row .btn-generate-full {
+  flex: 1;
+  margin-top: 0;
+}
+
 /* ===== 반응형 ===== */
 @media (max-width: 600px) {
   .input-row {

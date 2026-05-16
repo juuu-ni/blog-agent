@@ -29,6 +29,28 @@
  * );
  *
  * alter table style_profiles disable row level security;
+ *
+ * -- 임시저장 테이블 (사용자당 1건, upsert)
+ * create table draft_posts (
+ *   id               uuid        primary key default gen_random_uuid(),
+ *   user_id          text        not null unique,
+ *   is_template_mode boolean     default false,
+ *   place_info       jsonb,
+ *   topic            text,
+ *   must_include     text,
+ *   blog_title       text,
+ *   store_name       text,
+ *   location         text,
+ *   phone            text,
+ *   hours            text,
+ *   instagram        text,
+ *   menu_prices      text,
+ *   tpl_must_include text,
+ *   menu_ratings     jsonb,
+ *   updated_at       timestamptz default now()
+ * );
+ *
+ * alter table draft_posts disable row level security;
  */
 
 import { createClient } from '@supabase/supabase-js';

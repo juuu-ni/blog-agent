@@ -32,6 +32,18 @@
     </div>
   </header>
 
+  <!-- 임시저장 복원 배너 -->
+  <div id="draft-banner" class="draft-banner" style="display:none;">
+    <div class="draft-banner-content">
+      <span class="draft-banner-text">임시저장된 내용이 있어요.</span>
+      <span class="draft-banner-note">※ 사진은 포함되지 않아 다시 업로드해야 해요.</span>
+    </div>
+    <div class="draft-banner-actions">
+      <button class="btn-draft-restore" onclick="restoreDraft()">불러오기</button>
+      <button class="btn-draft-dismiss" onclick="dismissDraftBanner()">무시</button>
+    </div>
+  </div>
+
   <!-- 스텝 인디케이터 -->
   <div class="step-indicator-wrap">
     <div class="step-indicator">
@@ -113,6 +125,7 @@
 
         <div class="input-row">
           <input type="text" id="topic-input" class="text-input" placeholder="예: 오늘 카페 다녀온 이야기" />
+          <button class="btn btn-draft" id="btn-draft" onclick="saveDraft(this)">임시저장</button>
           <button class="btn btn-primary" id="btn-generate" onclick="generatePost()">글 생성</button>
         </div>
 
@@ -221,7 +234,10 @@
           <div id="menu-ratings-list" class="menu-ratings-list"></div>
         </div>
 
-        <button class="btn btn-primary btn-generate-full" id="btn-generate-tpl" onclick="generatePost()">글 생성</button>
+        <div class="tpl-generate-row">
+          <button class="btn btn-draft btn-draft-tpl" id="btn-draft-tpl" onclick="saveDraft(this)">임시저장</button>
+          <button class="btn btn-primary btn-generate-full" id="btn-generate-tpl" onclick="generatePost()">블로그 글 생성</button>
+        </div>
       </div>
 
       <div class="loading" id="loading-generate" style="display:none;">

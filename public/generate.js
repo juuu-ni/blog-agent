@@ -10,9 +10,121 @@ let isTemplateMode = false;
 let sectionImages = { exterior: [], interior: [], detail: [] };
 let menuRatings = [];
 
+/* ===== 임시저장 ===== */
+let _draftData = null;
+
+async function saveDraft(btn) {
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '저장 중...';
+
+  const body = {
+    isTemplateMode,
+    placeInfo: selectedPlace || null,
+    topic: document.getElementById('topic-input').value.trim(),
+    mustInclude: document.getElementById('must-include-input').value.trim(),
+    blogTitle: document.getElementById('tpl-blog-title').value.trim(),
+    storeName: document.getElementById('tpl-name').value.trim(),
+    location: document.getElementById('tpl-location').value.trim(),
+    phone: document.getElementById('tpl-phone').value.trim(),
+    hours: document.getElementById('tpl-hours').value.trim(),
+    instagram: document.getElementById('tpl-instagram').value.trim(),
+    menuPrices: document.getElementById('tpl-menu-prices').value.trim(),
+    tplMustInclude: document.getElementById('tpl-must-include').value.trim(),
+    menuRatings,
+  };
+
+  try {
+    const res = await fetch('/api/drafts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error();
+    btn.textContent = '저장됨 ✓';
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.disabled = false;
+    }, 1500);
+  } catch {
+    alert('임시저장에 실패했습니다. 다시 시도해 주세요.');
+    btn.textContent = original;
+    btn.disabled = false;
+  }
+}
+
+async function checkDraft() {
+  try {
+    const res = await fetch('/api/drafts');
+    if (!res.ok) return;
+    const draft = await res.json();
+    if (!draft) return;
+    _draftData = draft;
+    document.getElementById('draft-banner').style.display = 'flex';
+  } catch {
+    // 조용히 실패
+  }
+}
+
+function restoreDraft() {
+  const d = _draftData;
+  if (!d) return;
+
+  // 모드 설정
+  const toggle = document.getElementById('template-toggle');
+  toggle.checked = !!d.is_template_mode;
+  toggleTemplateMode();
+
+  // 장소 정보 복원
+  if (d.place_info) {
+    selectedPlace = d.place_info;
+    const place = d.place_info;
+    const meta = [place.category, place.address, place.telephone].filter(Boolean).map(escapeHtml).join(' · ');
+    const selectedEl = document.getElementById('place-selected');
+    selectedEl.style.display = 'block';
+    selectedEl.innerHTML = `
+      <div class="place-selected-header">
+        <span class="place-selected-icon">📍</span>
+        <div class="place-selected-body">
+          <div class="place-selected-name">${escapeHtml(place.name)}</div>
+          ${meta ? `<div class="place-selected-detail">${meta}</div>` : ''}
+        </div>
+        <button class="btn-remove" onclick="clearPlace()" title="선택 해제">✕</button>
+      </div>
+    `;
+  }
+
+  // 일반 모드 필드
+  document.getElementById('topic-input').value = d.topic || '';
+  document.getElementById('must-include-input').value = d.must_include || '';
+
+  // 템플릿 모드 필드
+  document.getElementById('tpl-blog-title').value = d.blog_title || '';
+  document.getElementById('tpl-name').value = d.store_name || '';
+  document.getElementById('tpl-location').value = d.store_location || '';
+  document.getElementById('tpl-phone').value = d.phone || '';
+  document.getElementById('tpl-hours').value = d.hours || '';
+  document.getElementById('tpl-instagram').value = d.instagram || '';
+  document.getElementById('tpl-menu-prices').value = d.menu_prices || '';
+  document.getElementById('tpl-must-include').value = d.tpl_must_include || '';
+
+  // 메뉴 별점
+  if (Array.isArray(d.menu_ratings) && d.menu_ratings.length > 0) {
+    menuRatings = d.menu_ratings;
+    renderMenuRatings();
+  }
+
+  dismissDraftBanner();
+}
+
+function dismissDraftBanner() {
+  document.getElementById('draft-banner').style.display = 'none';
+}
+
 /* ===== 초기화 ===== */
 document.addEventListener('DOMContentLoaded', () => {
   loadProfiles();
+  checkDraft();
 
   document.getElementById('topic-input').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') generatePost();
