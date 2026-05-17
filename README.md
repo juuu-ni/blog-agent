@@ -23,16 +23,16 @@
 
 ## 기술 스택
 
-| 분류 | 기술 |
-|------|------|
-| Frontend | HTML, CSS, Vanilla JavaScript |
-| Backend | Node.js, Express |
-| AI | Anthropic Claude API (claude-sonnet-4-6) |
-| 외부 API | 네이버 Local Search API (장소 검색) |
-| 데이터베이스 | Supabase (PostgreSQL) |
-| 인증 | Kakao OAuth 2.0 + express-session |
-| 보안 | Helmet (CSP), express-rate-limit |
-| 배포 | Railway |
+| 분류         | 기술                                     |
+| ------------ | ---------------------------------------- |
+| Frontend     | HTML, CSS, Vanilla JavaScript            |
+| Backend      | Node.js, Express                         |
+| AI           | Anthropic Claude API (claude-sonnet-4-6) |
+| 외부 API     | 네이버 Local Search API (장소 검색)      |
+| 데이터베이스 | Supabase (PostgreSQL)                    |
+| 인증         | Kakao OAuth 2.0 + express-session        |
+| 보안         | Helmet (CSP), express-rate-limit         |
+| 배포         | Railway                                  |
 
 ## 시작하기
 
