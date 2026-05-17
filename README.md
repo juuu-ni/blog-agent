@@ -6,8 +6,7 @@
 
 ## 스크린샷
 
-![로그인 페이지](docs/login.png)
-![메인 페이지](docs/main.png)
+<img src="docs/login.png" width="49%"/> <img src="docs/main.png" width="49%"/>
 
 ## 주요 기능
 
