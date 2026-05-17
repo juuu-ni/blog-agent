@@ -4,9 +4,9 @@
 
 **배포:** https://blog-agent-production-0ffd.up.railway.app
 
-## 스크린샷
+## 미리보기
 
-<img src="docs/login.png" width="49%"/> <img src="docs/main.png" width="49%"/>
+<img src="docs/login.png" height="400"/> <img src="docs/main.png" height="400"/>
 
 ## 주요 기능
 
