@@ -10,7 +10,7 @@
 - **Auth**: Kakao OAuth 2.0 + express-session
 - **Storage**: Supabase (PostgreSQL)
 - **External API**: Naver Local API (장소 검색)
-- **배포**: Railway
+- **배포**: Render
 
 ## 개발 명령어
 
@@ -27,6 +27,35 @@ npm start     # 프로덕션
 - 새 파일 만들기 전에 기존 파일 수정 우선
 - 페이지별 파일 1:1 구조 유지 (html/js/css 세트)
 - Claude API 응답은 JSON 파싱 실패 대비 try-catch 필수
+
+## 페이지 구조
+
+인증 컬럼: `requireAuth` = 로그인하지 않으면 접근 불가 (미들웨어가 `/login`으로 리다이렉트), `불필요` = 비로그인 상태에서도 접근 가능
+
+| 경로 | 파일 | 인증 |
+|------|------|------|
+| `/` | index.html | requireAuth |
+| `/login` | login.html | 불필요 |
+| `/generate` | generate.html | requireAuth |
+| `/result` | result.html | requireAuth |
+| `/history` | history.html | requireAuth |
+| `/style-profiles` | style-profiles.html | requireAuth |
+
+## API 라우터
+
+claudeLimiter 컬럼: `✓` = IP당 15분에 10회 제한 적용 (Claude API 호출 라우트), `✗` = 제한 없음
+
+| 경로 | 설명 | claudeLimiter |
+|------|------|---------------|
+| `/auth` | 카카오 OAuth 로그인/로그아웃 | ✗ |
+| `/api/analyze` | 말투 분석 | ✓ |
+| `/api/generate` | 블로그 글 생성 (normal/template 모드) | ✓ |
+| `/api/hashtags` | 해시태그 생성 | ✓ |
+| `/api/suggest-title` | 제목 추천 | ✓ |
+| `/api/search-place` | 네이버 Local API 장소 검색 | ✗ |
+| `/api/posts` | 글 저장/조회/삭제 | ✗ |
+| `/api/profiles` | 말투 프로파일 관리 | ✗ |
+| `/api/drafts` | 임시저장 upsert | ✗ |
 
 ## 아키텍처 결정 이유
 
@@ -46,7 +75,7 @@ npm start     # 프로덕션
 - 네이버 Local API `mapx`/`mapy`는 WGS84 × 10⁶ 형식 → `/ 1_000_000` 변환 필요
 - 영업시간은 네이버 API에서 제공하지 않아 수동 입력
 - Claude API 호출 라우트에 `claudeLimiter` 적용 (IP당 15분에 10회)
-- Railway 배포 시 `app.set('trust proxy', 1)` 필수 — 없으면 카카오 OAuth 콜백 오류
+- Render 배포 시 `app.set('trust proxy', 1)` 필수 — 없으면 카카오 OAuth 콜백 오류
 
 ## 커밋 스타일
 
