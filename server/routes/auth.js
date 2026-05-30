@@ -32,7 +32,12 @@ router.post('/email/signup', async (req, res) => {
   if (password.length < 6) return res.status(400).json({ error: '비밀번호는 6자 이상이어야 합니다.' });
 
   try {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const SITE_URL = process.env.SITE_URL || `http://localhost:${process.env.PORT || 3000}`;
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${SITE_URL}/auth/email/confirm` },
+    });
     if (error) return res.status(400).json({ error: error.message });
 
     if (!data.session) {
@@ -113,6 +118,27 @@ router.get('/kakao/callback', async (req, res) => {
     res.redirect('/');
   } catch (err) {
     console.error('[auth] kakao callback error:', err);
+    res.redirect('/login?error=1');
+  }
+});
+
+// GET /auth/email/confirm — Supabase 이메일 확인 콜백
+router.get('/email/confirm', async (req, res) => {
+  const { token_hash, type } = req.query;
+  if (!token_hash || type !== 'email') return res.redirect('/login?error=1');
+
+  try {
+    const { data, error } = await supabase.auth.verifyOtp({ token_hash, type: 'email' });
+    if (error) return res.redirect('/login?error=1');
+
+    req.session.user = {
+      id: data.user.id,
+      nickname: data.user.email.split('@')[0],
+      profileImage: null,
+    };
+    res.redirect('/');
+  } catch (err) {
+    console.error('[auth] email confirm error:', err);
     res.redirect('/login?error=1');
   }
 });
