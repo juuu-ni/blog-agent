@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { randomBytes } from 'crypto';
+import { createClient } from '@supabase/supabase-js';
 import supabase from '../lib/supabase.js';
 
 const router = Router();
@@ -140,6 +141,47 @@ router.get('/email/confirm', async (req, res) => {
   } catch (err) {
     console.error('[auth] email confirm error:', err);
     res.redirect('/login?error=1');
+  }
+});
+
+// POST /auth/email/forgot-password — 비밀번호 재설정 이메일 발송
+router.post('/email/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: '이메일을 입력해 주세요.' });
+
+  try {
+    const SITE_URL = process.env.SITE_URL || `http://localhost:${process.env.PORT || 3000}`;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${SITE_URL}/auth/reset-password`,
+    });
+    if (error) return res.status(400).json({ error: '이메일 전송에 실패했습니다.' });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[auth] forgot password error:', err);
+    res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+  }
+});
+
+// POST /auth/email/reset-password — 비밀번호 변경
+router.post('/email/reset-password', async (req, res) => {
+  const { token_hash, password } = req.body;
+  if (!token_hash || !password) return res.status(400).json({ error: '필요한 정보가 없습니다.' });
+  if (password.length < 6) return res.status(400).json({ error: '비밀번호는 6자 이상이어야 합니다.' });
+
+  try {
+    const { data, error } = await supabase.auth.verifyOtp({ token_hash, type: 'recovery' });
+    if (error || !data.session) return res.status(400).json({ error: '링크가 만료되었거나 유효하지 않습니다.' });
+
+    const userSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: `Bearer ${data.session.access_token}` } },
+    });
+    const { error: updateError } = await userSupabase.auth.updateUser({ password });
+    if (updateError) return res.status(400).json({ error: '비밀번호 변경에 실패했습니다.' });
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[auth] reset password error:', err);
+    res.status(500).json({ error: '서버 오류가 발생했습니다.' });
   }
 });
 

@@ -26,7 +26,7 @@
     <div class="auth-card">
 
       <!-- 탭 -->
-      <div class="auth-tabs">
+      <div class="auth-tabs" id="auth-tabs-el">
         <button class="auth-tab" id="tab-login">LOG IN</button>
         <button class="auth-tab" id="tab-signup">SIGN UP</button>
         <div class="auth-tab-indicator" id="tab-indicator"></div>
@@ -52,6 +52,9 @@
           </div>
           <button type="submit" class="auth-submit" id="btn-login-submit">SUBMIT</button>
         </form>
+        <div style="text-align:center; margin-top: 12px;">
+          <button type="button" id="btn-forgot" style="background:none; border:none; font-size:12px; color:#a0a0a0; cursor:pointer; font-family:var(--font); text-decoration:underline; padding:0;">비밀번호를 잊으셨나요?</button>
+        </div>
         <div class="auth-sep"><span>또는</span></div>
         <a href="/auth/kakao" class="btn-kakao">
           <svg class="kakao-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -59,6 +62,27 @@
           </svg>
           카카오로 계속하기
         </a>
+      </div>
+
+      <!-- 비밀번호 찾기 패널 -->
+      <div id="panel-forgot" style="display:none;">
+        <button type="button" id="btn-forgot-back" style="background:none; border:none; font-size:12px; color:#a0a0a0; cursor:pointer; font-family:var(--font); padding:0 0 20px; display:flex; align-items:center; gap:4px;">
+          ← 로그인으로 돌아가기
+        </button>
+        <div id="forgot-error" class="auth-msg auth-msg-error" style="display:none;"></div>
+        <div id="forgot-success" class="auth-msg auth-msg-success" style="display:none;">
+          이메일을 보냈습니다. 받은 편지함을 확인해 주세요.
+        </div>
+        <form id="form-forgot" class="auth-form">
+          <div class="input-wrap">
+            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+            </svg>
+            <input type="email" id="forgot-email" class="auth-input" placeholder="가입한 이메일" autocomplete="email" required />
+          </div>
+          <button type="submit" class="auth-submit" id="btn-forgot-submit">재설정 이메일 보내기</button>
+        </form>
       </div>
 
       <!-- 회원가입 폼 -->

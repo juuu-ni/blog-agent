@@ -93,6 +93,11 @@ app.get('/signup', (req, res) => {
   res.sendFile(join(__dirname, '../public/login.html'));
 });
 
+app.get('/auth/reset-password', (req, res) => {
+  if (req.session?.user) return res.redirect('/');
+  res.sendFile(join(__dirname, '../public/reset-password.html'));
+});
+
 // 보호된 페이지 (인증 필요) — express.static이 index.html을 가로채지 않도록 명시적 등록
 app.get('/', requireAuth, (req, res) => {
   res.sendFile(join(__dirname, '../public/index.html'));
