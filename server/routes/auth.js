@@ -172,8 +172,10 @@ router.post('/email/reset-password', async (req, res) => {
     const { data, error } = await supabase.auth.verifyOtp({ token_hash, type: 'recovery' });
     if (error || !data.session) return res.status(400).json({ error: '링크가 만료되었거나 유효하지 않습니다.' });
 
-    const userSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
-      global: { headers: { Authorization: `Bearer ${data.session.access_token}` } },
+    const userSupabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+    await userSupabase.auth.setSession({
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
     });
     const { error: updateError } = await userSupabase.auth.updateUser({ password });
     if (updateError) return res.status(400).json({ error: '비밀번호 변경에 실패했습니다.' });
