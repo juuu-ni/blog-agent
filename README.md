@@ -18,10 +18,11 @@
 - **해시태그 자동 생성**: 생성된 글에 어울리는 해시태그 자동 추천
 - **네이버 장소 검색 연동**: 가게 이름 검색으로 주소·좌표 자동 입력
 - **임시저장**: 글 생성 페이지 입력 내용을 Supabase에 자동 저장, 재방문 시 복원
-- **결과 인라인 편집**: 생성된 글을 결과 페이지에서 바로 수정 가능
+- **결과 인라인 편집**: 생성된 글을 결과 페이지에서 바로 수정 가능, 수정 저장 시 중복 생성 없이 원본 업데이트
 - **글 저장/관리**: 생성한 글을 저장하고 히스토리에서 조회/삭제
+- **히스토리 검색**: 저장된 글을 제목·장소명·해시태그로 실시간 검색
 - **말투 프로파일 관리**: 저장된 프로파일 속성 직접 편집 및 재사용
-- **카카오 로그인**: Kakao OAuth 2.0 소셜 로그인, 사용자별 데이터 완전 분리
+- **카카오 로그인 / 이메일 회원가입**: Kakao OAuth 2.0 소셜 로그인 또는 이메일·비밀번호로 가입, 사용자별 데이터 완전 분리
 
 ## 사용 방법
 
@@ -59,8 +60,9 @@ NAVER_CLIENT_ID=
 NAVER_CLIENT_SECRET=
 SUPABASE_URL=
 SUPABASE_ANON_KEY=
-KAKAO_REST_API_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
 KAKAO_CLIENT_SECRET=
-KAKAO_REDIRECT_URI=        # 로컬: http://localhost:3000/auth/kakao/callback
+KAKAO_REDIRECT_URI=          # 로컬: http://localhost:3000/auth/kakao/callback
 SESSION_SECRET=
+SITE_URL=
 ```
