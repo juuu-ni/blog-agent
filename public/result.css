@@ -11,7 +11,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
-  background: #f8f9fa;
+  background: var(--color-bg-subtle);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -286,10 +286,10 @@
 
 /* ===== 편집 모드 ===== */
 [contenteditable="true"] {
-  border: 1.5px solid #4CAF82;
+  border: 1.5px solid var(--color-primary);
   border-radius: 4px;
   padding: 4px 6px;
-  background: #f8fff9;
+  background: var(--color-primary-light);
   outline: none;
   cursor: text;
   min-height: 1em;
@@ -299,8 +299,8 @@
 }
 
 [contenteditable="true"]:focus {
-  border-color: #2e7d55;
-  box-shadow: 0 0 0 2px rgba(76, 175, 130, 0.2);
+  border-color: var(--color-primary-dark);
+  box-shadow: 0 0 0 2px rgba(3, 199, 90, 0.2);
 }
 
 .tpl-result-header [contenteditable="true"] {
@@ -316,9 +316,9 @@
 
 #btn-edit.editing,
 #btn-edit-bottom.editing {
-  background: #e8f5e9;
-  border-color: #4CAF82;
-  color: #2e7d55;
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
   font-weight: 600;
 }
 

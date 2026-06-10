@@ -1,6 +1,6 @@
 /* ===== 인증 페이지 공통 ===== */
 body {
-  background: #fff;
+  background: var(--color-bg);
 }
 
 .auth-main {
@@ -13,7 +13,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 28px;
-  background: #fff;
+  background: var(--color-bg);
 }
 
 /* 브랜드 로고 */
@@ -103,7 +103,7 @@ body {
   transform: translateY(-50%);
   width: 16px;
   height: 16px;
-  color: #c0c0c0;
+  color: var(--color-placeholder);
   pointer-events: none;
   flex-shrink: 0;
 }
@@ -116,7 +116,7 @@ body {
   font-size: 14px;
   font-family: var(--font);
   color: var(--color-text);
-  background: #fafafa;
+  background: var(--color-bg-subtle);
   outline: none;
   transition: border-color 0.15s, background 0.15s;
   box-sizing: border-box;
@@ -128,7 +128,7 @@ body {
 }
 
 .auth-input::placeholder {
-  color: #c8c8c8;
+  color: var(--color-placeholder);
 }
 
 /* SUBMIT 버튼 */

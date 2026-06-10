@@ -162,7 +162,7 @@
   justify-content: space-between;
   padding: 10px 18px;
   border-top: 1px solid var(--color-border);
-  background: #fafafa;
+  background: var(--color-bg-subtle);
 }
 
 .history-card-date {
@@ -186,4 +186,20 @@
   color: var(--color-error);
   border-color: var(--color-error);
   background: #fff0f0;
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 600px) {
+  .history-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .history-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .search-input {
+    font-size: 16px; /* iOS 자동 줌 방지 */
+  }
 }

@@ -4,11 +4,13 @@
   --color-primary-dark: #02a84a;
   --color-primary-light: #e8faf0;
   --color-bg: #f4f5f7;
+  --color-bg-subtle: #fafafa;
   --color-card: #ffffff;
   --color-text: #191919;
   --color-muted: #888;
   --color-border: #e0e0e0;
   --color-error: #f03030;
+  --color-placeholder: #c0c0c0;
   --radius-card: 12px;
   --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.07);
   --font: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -347,7 +349,7 @@ main {
 }
 
 .text-input::placeholder {
-  color: #c0c0c0;
+  color: var(--color-placeholder);
 }
 
 /* ===== 프로파일 공통 (index + generate) ===== */
@@ -431,6 +433,78 @@ main {
   cursor: default;
 }
 
+/* ===== 스텝 인디케이터 (index + generate 공용) ===== */
+.step-indicator-wrap {
+  background: var(--color-card);
+  border-bottom: 1px solid var(--color-border);
+  padding: 14px 20px;
+}
+
+.step-indicator {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.step-bubble {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-border);
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+
+.step.active .step-bubble {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.step.done .step-bubble {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.step-label {
+  font-size: 11px;
+  color: var(--color-muted);
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.step.active .step-label {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.step-line {
+  flex: 1;
+  height: 2px;
+  background: var(--color-border);
+  min-width: 40px;
+  max-width: 80px;
+  margin-bottom: 18px;
+}
+
+.done-line {
+  background: var(--color-primary);
+}
+
 /* ===== 푸터 ===== */
 .site-footer {
   text-align: center;
@@ -464,6 +538,14 @@ main {
 
   .profile-grid {
     grid-template-columns: 1fr;
+  }
+
+  .step-label {
+    display: none;
+  }
+
+  .step-line {
+    min-width: 24px;
   }
 }
 
