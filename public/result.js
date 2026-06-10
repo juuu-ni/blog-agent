@@ -340,6 +340,8 @@ async function savePost() {
   const data = JSON.parse(sessionStorage.getItem('blogResult'));
   if (!data) return;
 
+  const { _postId: existingPostId, ...contentData } = data;
+
   const btns = [document.getElementById('btn-save'), document.getElementById('btn-save-bottom')];
 
   const title = document.getElementById('result-topic').value.trim()
@@ -352,15 +354,25 @@ async function savePost() {
   btns.forEach(btn => { if (btn) { btn.disabled = true; btn.textContent = '저장 중...'; } });
 
   try {
-    const res = await fetch('/api/posts', {
-      method: 'POST',
+    const url = existingPostId ? `/api/posts/${existingPostId}` : '/api/posts';
+    const method = existingPostId ? 'PUT' : 'POST';
+
+    const res = await fetch(url, {
+      method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, storeName, content: stripImagesFromContent(data), hashtags }),
+      body: JSON.stringify({ title, storeName, content: stripImagesFromContent(contentData), hashtags }),
     });
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || `서버 오류 (${res.status})`);
+    }
+
+    const saved = await res.json();
+
+    // 새 글 저장 시 이후 재저장이 PUT을 쓰도록 ID 보관
+    if (!existingPostId && saved.id) {
+      sessionStorage.setItem('blogResult', JSON.stringify({ ...data, _postId: saved.id }));
     }
 
     btns.forEach(btn => {

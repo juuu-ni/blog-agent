@@ -61,6 +61,30 @@ router.get('/:id', async (req, res) => {
   res.json(data);
 });
 
+// PUT /api/posts/:id — 글 수정
+router.put('/:id', async (req, res) => {
+  const { title, storeName, content, hashtags } = req.body;
+  if (!title || !content) {
+    return res.status(400).json({ error: '제목과 내용이 필요합니다.' });
+  }
+
+  const userId = req.session.user.id;
+
+  const { data, error } = await supabase
+    .from('saved_posts')
+    .update({ title, store_name: storeName || null, content, hashtags: hashtags || [] })
+    .eq('id', req.params.id)
+    .eq('user_id', userId)
+    .select('id, title, store_name, created_at')
+    .single();
+
+  if (error) {
+    console.error('[posts] update error:', error);
+    return res.status(500).json({ error: '글 수정에 실패했습니다.' });
+  }
+  res.json(data);
+});
+
 // DELETE /api/posts/:id — 글 삭제
 router.delete('/:id', async (req, res) => {
   const userId = req.session.user.id;

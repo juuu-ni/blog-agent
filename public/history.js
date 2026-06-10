@@ -1,3 +1,5 @@
+let allPosts = [];
+
 document.addEventListener('DOMContentLoaded', loadPosts);
 
 async function loadPosts() {
@@ -13,12 +15,66 @@ async function loadPosts() {
       return;
     }
 
+    allPosts = posts;
     document.getElementById('post-count').textContent = `${posts.length}개`;
+    document.getElementById('search-bar').style.display = 'block';
     document.getElementById('history-grid').style.display = 'grid';
     renderPosts(posts);
+    initSearch();
   } catch (err) {
     document.getElementById('history-loading').innerHTML =
       `<p style="color:var(--color-error); text-align:center;">불러오기 실패: ${err.message}</p>`;
+  }
+}
+
+function initSearch() {
+  const input = document.getElementById('search-input');
+  const clearBtn = document.getElementById('search-clear');
+  let timer;
+
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    clearBtn.style.display = input.value ? 'block' : 'none';
+    timer = setTimeout(() => filterPosts(input.value), 300);
+  });
+
+  clearBtn.addEventListener('click', () => {
+    input.value = '';
+    clearBtn.style.display = 'none';
+    filterPosts('');
+    input.focus();
+  });
+}
+
+function filterPosts(query) {
+  const q = query.trim().toLowerCase();
+  const searchEmpty = document.getElementById('history-search-empty');
+  const grid = document.getElementById('history-grid');
+
+  if (!q) {
+    document.getElementById('post-count').textContent = `${allPosts.length}개`;
+    searchEmpty.style.display = 'none';
+    grid.style.display = 'grid';
+    renderPosts(allPosts);
+    return;
+  }
+
+  const filtered = allPosts.filter(post => {
+    const title = (post.title || '').toLowerCase();
+    const store = (post.store_name || '').toLowerCase();
+    const tags = (post.hashtags || []).join(' ').toLowerCase();
+    return title.includes(q) || store.includes(q) || tags.includes(q);
+  });
+
+  document.getElementById('post-count').textContent = `${filtered.length} / ${allPosts.length}개`;
+
+  if (filtered.length === 0) {
+    grid.style.display = 'none';
+    searchEmpty.style.display = 'flex';
+  } else {
+    searchEmpty.style.display = 'none';
+    grid.style.display = 'grid';
+    renderPosts(filtered);
   }
 }
 
@@ -64,7 +120,7 @@ async function openPost(id) {
     if (!content || typeof content !== 'object') {
       throw new Error('저장된 글 내용이 없습니다.');
     }
-    sessionStorage.setItem('blogResult', JSON.stringify(content));
+    sessionStorage.setItem('blogResult', JSON.stringify({ ...content, _postId: post.id }));
     window.location.href = '/result';
   } catch (err) {
     alert(`불러오기 실패: ${err.message}`);
