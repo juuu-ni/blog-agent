@@ -3,11 +3,6 @@ import { randomBytes } from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 import supabase from '../lib/supabase.js';
 
-const supabaseAdmin = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
-
 const router = Router();
 
 // POST /auth/email/login — 이메일/비밀번호 로그인
@@ -38,8 +33,17 @@ router.post('/email/signup', async (req, res) => {
   if (password.length < 6) return res.status(400).json({ error: '비밀번호는 6자 이상이어야 합니다.' });
 
   try {
-    const { data: existing } = await supabaseAdmin.auth.admin.getUserByEmail(email);
-    if (existing?.user) {
+    const checkRes = await fetch(
+      `${process.env.SUPABASE_URL}/auth/v1/admin/users?email=${encodeURIComponent(email)}`,
+      {
+        headers: {
+          'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+      }
+    );
+    const { users } = await checkRes.json();
+    if (users?.some(u => u.email === email)) {
       return res.status(400).json({ error: '이미 가입된 이메일입니다.' });
     }
 
