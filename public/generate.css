@@ -1,6 +1,5 @@
 /* ===== 프로파일 요약 카드 ===== */
 .card-profile-summary {
-  border-left: 3px solid var(--color-primary);
 }
 
 /* ===== 프로파일 셀렉터 ===== */
@@ -574,6 +573,60 @@
 .tpl-generate-row .btn-generate-full {
   flex: 1;
   margin-top: 0;
+}
+
+/* ===== 2열 레이아웃 (generate 전용) ===== */
+main.gen-main {
+  max-width: 1100px;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.card-profile-summary {
+  width: 300px;
+  flex-shrink: 0;
+}
+
+/* 좁은 열: 드롭다운 아래에 버튼 배치 */
+.card-profile-summary .profile-select-row {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.card-profile-summary .profile-select {
+  width: 100%;
+  flex: none;
+}
+
+.card-profile-summary .profile-grid {
+  grid-template-columns: 1fr;
+}
+
+#step-generate {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  main.gen-main {
+    flex-direction: column;
+  }
+  .card-profile-summary {
+    width: 100%;
+  }
+  .card-profile-summary .profile-select-row {
+    flex-direction: row;
+    align-items: center;
+  }
+  .card-profile-summary .profile-select {
+    flex: 1;
+    width: auto;
+  }
+  .card-profile-summary .profile-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
 }
 
 /* ===== 반응형 ===== */
